@@ -1,17 +1,26 @@
 <template>
   <div id="app">
-    <Monitor/>
+    <router-view />
   </div>
 </template>
 
 <script>
-import Monitor from './components/Monitor.vue'
-
+import Register from './views/Register.vue'
+import Monitor from './views/Monitor.vue'
+import Identify from './views/Identify.vue';
+import Count from './views/Count.vue';
+import Login from './views/Login.vue';
+import Home from './views/Home';
 export default {
   name: 'App',
-  components: {
-    Monitor
-  }
+  views: {
+    Monitor,
+    Register,
+    Identify,
+    Count,
+    Login,
+    Home
+}
 }
 </script>
 

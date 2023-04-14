@@ -18,24 +18,21 @@
     <!-- 摄像区域 end -->
   </div>
 </template>
-  
-  <script>
+    
+<script>
 import tracking from '@/assets/tracking/build/tracking-min.js'
 import '@/assets/tracking/build/data/face-min.js'
-import {setFace} from '../api/index.js'
-import {mapGetters,mapState} from 'vuex'
-
+import { IdentifyFace } from '../api'
 
 export default {
-  name: 'Monitor',
+  name: 'Identify',
   data() {
     return {
       // 人脸参数
-      params:{
-        image:'',
-        image_type:'BASE64',
-        group_id:'hjm',
-        user_id:'hjm'
+      params: {
+        image: '',
+        image_type: 'BASE64',
+        group_id_list: 'hjm'
       },
       // 提示
       infoFlag: 1,
@@ -53,11 +50,6 @@ export default {
   mounted() {
     this.init()
   },
-  computed:{
-      ...mapState({
-        faceDate : state => state.home.faceDate
-      }),
-    },
   beforeDestroy() {
     clearInterval(this.timer)
   },
@@ -108,21 +100,29 @@ export default {
       const base64Img = canvas.toDataURL('image/jpeg')
       const pic = base64Img.substring(23)
 
-
-      if (base64Img) this.infoFlag = 2
       // 使用 base64Img 请求接口即可
       this.params.image = pic
-      console.log('base64Img:', base64Img)
-      console.log('pic',pic);
+      this.infoFlag = 2
       // 请求接口成功以后打开锁
       // this.uploadLock = true
-      // let result = await setAndGetFace(this.params);
-      this.$store.dispatch('setFace',this.params)
+      let result = await IdentifyFace(this.params)
+      if (result.error_code == 0) {
+        console.log(result)
+        this.infoFlag = 3
+      } else {
+        console.log(
+          'error_code:',
+          result.error_code,
+          'error_msg:',
+          result.error_msg
+        )
+        return Promise.reject(new Error('faile'))
+      }
       // 关闭摄像头
       this.destroyed()
 
       // 刷信当前页面
-      this.goMonitor()
+      // this.refash()
     },
 
     // 关闭摄像头
@@ -133,7 +133,7 @@ export default {
     },
 
     //刷新当前页面
-    goMonitor() {
+    refash() {
       this.countdown = 3
       this.isShow = true
       this.timer = setInterval(() => {
@@ -143,12 +143,12 @@ export default {
           this.$router.go(0)
         }
       }, 1000)
-    },
+    }
   }
 }
 </script>
-  
-  <style scoped>
+    
+<style scoped>
 /* 提示 */
 .info {
   font-size: 20px;
@@ -186,4 +186,4 @@ export default {
   width: 600px;
 }
 </style>
-  
+    

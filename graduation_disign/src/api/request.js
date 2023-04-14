@@ -15,14 +15,17 @@ const requests = axios.create({
     baseURL: "/api",
     //代表请求超时的时间5s
     timeout: 5000,
+    // headers: 'application/x-www-form-urlencoded'
 });
 
 //请求拦截器：在发请求之前，请求拦截器可以检测到，可以在请求发出去之前做一些事情
 requests.interceptors.request.use((config) => {
     //config:配置对象，对象里面有一个属性很重要，header请求头
     // nprogress.start()
+    if (config.url.includes('/image-classify/')) {
+        config.headers["Content-Type"] = 'application/x-www-form-urlencoded'
+    }
     return config;
-
 });
 
 //响应拦截器

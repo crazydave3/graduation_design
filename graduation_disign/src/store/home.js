@@ -1,4 +1,4 @@
-import { SetAndGetFace, SetFace } from "../api";
+import { IdentifyFace, SetFace } from "../api";
 
 const state = {
     faceDate: []
@@ -8,6 +8,7 @@ const mutations = {
         state.faceDate = faceDate
     },
     SETFACE(state, faceDate) {
+        console.log(1);
         state.faceDate = faceDate
     }
 
@@ -21,9 +22,7 @@ const actions = {
         }
     },
     async setFace({ commit }, params) {
-        console.log(1);
         let result = await SetFace(params);
-        console.log('result', result);
         if (result.code == 200) {
             commit("SETFACE", result.data)
         } else {
