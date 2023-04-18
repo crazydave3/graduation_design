@@ -9,12 +9,15 @@ import Login from '../views/Login'
 import Home from '../views/Home'
 //引入二级路由组件
 import Admin from '../views/Home/Admin'
+import FaceHandele from '../views/Home/FaceHandle'
+import CriminalFaceHandle from '../views/Home/CriminalFaceHandle'
 Vue.use(VueRouter)
 
-const routes = [{
-        path: '/',
-        redirect: '/login'
-    },
+const routes = [
+    // {
+    //     path: '/',
+    //     redirect: '/login'
+    // },
     {
         path: '/login',
         component: Login,
@@ -32,11 +35,18 @@ const routes = [{
                 path: 'admin',
                 component: Admin,
             },
-
+            {
+                path: 'facehandle',
+                component: FaceHandele,
+            },
+            {
+                path: 'criminalfacehandle',
+                component: CriminalFaceHandle,
+            },
             {
                 path: '/home',
                 redirect: '/home/admin'
-            }
+            },
         ],
     },
     {

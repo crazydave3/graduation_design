@@ -3,8 +3,8 @@
     <label class="logo">铁路安防系统</label>
     <ul>
       <li><router-link class="a" to="admin">账号管理</router-link></li>
-      <li><router-link class="a">入闸人脸管理</router-link></li>
-      <li><router-link class="a">罪犯人脸管理</router-link></li>
+      <li><router-link class="a" to="facehandle">入闸人脸管理</router-link></li>
+      <li><router-link class="a" to="criminalfacehandle">罪犯人脸管理</router-link></li>
     </ul>
   </nav>
 </template>

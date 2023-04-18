@@ -9,11 +9,15 @@
 <script>
 import Navbar from '@/components/Narbar'
 import Admin from './Admin'
+import FaceHandle from './FaceHandle'
+import CriminalFaceHandle from './CriminalFaceHandle'
 export default {
   name: 'Home',
   components: {
     Navbar,
-    Admin
+    Admin,
+    FaceHandle,
+    CriminalFaceHandle
   },
   data() {
     return {}
