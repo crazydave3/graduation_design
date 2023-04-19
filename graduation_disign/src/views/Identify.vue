@@ -17,7 +17,10 @@
     </div>
     <!-- 摄像区域 end -->
     <div class="alert">
-      <div class="haveCriminal"><div class="haveCriminal1"></div><button class="close" @click="close">关闭</button></div>
+      <div class="haveCriminal">
+        <div class="haveCriminal1"></div>
+        <button class="close" @click="close">关闭</button>
+      </div>
     </div>
   </div>
 </template>
@@ -26,8 +29,6 @@
 import tracking from '@/assets/tracking/build/tracking-min.js'
 import '@/assets/tracking/build/data/face-min.js'
 import { IdentifyFace, FindCriminal } from '../api'
-
-
 export default {
   name: 'Identify',
   data() {
@@ -37,7 +38,7 @@ export default {
         image: '',
         image_type: 'BASE64',
         group_id_list: 'hjm',
-        match_threshold:80
+        match_threshold: 80
       },
       params1: {
         image: '',
@@ -47,7 +48,7 @@ export default {
       },
       // 提示
       infoFlag: 1,
-      flag : '',
+      flag: '',
 
       // 摄像
       trackerTask: null,
@@ -72,8 +73,9 @@ export default {
   methods: {
     // 初始化设置
     init() {
+      let time = this.getTime()
       let haveCriminal = localStorage.getItem('haveCriminal')
-      if(haveCriminal === 'true') {
+      if (haveCriminal === 'true') {
         this.haveCriminal()
       }
 
@@ -100,8 +102,8 @@ export default {
           event.data.forEach(function (rect) {
             context.strokeStyle = '#0764B7'
             context.strokeRect(rect.x, rect.y, rect.width, rect.height)
-        // 上传图片
-        _this.uploadLock && _this.screenshotAndUpload()
+            // 上传图片
+            _this.uploadLock && _this.screenshotAndUpload()
           })
         })
       }, 3000)
@@ -132,9 +134,7 @@ export default {
       let result1 = await FindCriminal(this.params1)
       this.uploadLock = true
 
-
       if (result.error_code == 0) {
-        let time = this.getTime()
         console.log(result)
         this.flag = '成功'
       } else {
@@ -176,32 +176,42 @@ export default {
       haveCriminal[0].style.display = 'block'
       let haveCriminal1 = document.getElementsByClassName('haveCriminal1')
       haveCriminal1[0].classList.add('blink')
-      localStorage.setItem('haveCriminal','true')
+      localStorage.setItem('haveCriminal', 'true')
     },
     //隐藏节点
-    close(event){
-      localStorage.removeItem("haveCriminal")
-      event.currentTarget.parentElement.style.display = "none"
+    close(event) {
+      localStorage.removeItem('haveCriminal')
+      event.currentTarget.parentElement.style.display = 'none'
     },
     //获取当前时间
     getTime() {
-      Date.prototype.Format = function(fmt) {
+      Date.prototype.Format = function (fmt) {
         var o = {
-            "M+": this.getMonth() + 1, //月份 
-            "d+": this.getDate(), //日 
-            "H+": this.getHours(), //小时 
-            "m+": this.getMinutes(), //分 
-            "s+": this.getSeconds(), //秒 
-            "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-            "S": this.getMilliseconds() //毫秒 
-        };
-        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+          'M+': this.getMonth() + 1, //月份
+          'd+': this.getDate(), //日
+          'H+': this.getHours(), //小时
+          'm+': this.getMinutes(), //分
+          's+': this.getSeconds(), //秒
+          'q+': Math.floor((this.getMonth() + 3) / 3), //季度
+          S: this.getMilliseconds() //毫秒
+        }
+        if (/(y+)/.test(fmt))
+          fmt = fmt.replace(
+            RegExp.$1,
+            (this.getFullYear() + '').substr(4 - RegExp.$1.length)
+          )
         for (var k in o)
-            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-        return fmt;
-    }
+          if (new RegExp('(' + k + ')').test(fmt))
+            fmt = fmt.replace(
+              RegExp.$1,
+              RegExp.$1.length == 1
+                ? o[k]
+                : ('00' + o[k]).substr(('' + o[k]).length)
+            )
+        return fmt
+      }
 
-    return new Date().Format("yyyy-MM-dd HH时mm分ss秒");
+      return new Date().Format('yyyy-MM-dd HH时mm分ss秒')
     },
     // 关闭摄像头
     destroyed() {
@@ -271,10 +281,10 @@ export default {
   transform: translate(-50%, 0);
 }
 
-.haveCriminal{
+.haveCriminal {
   display: none;
 }
-.haveCriminal1{
+.haveCriminal1 {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -282,17 +292,27 @@ export default {
   margin: 0 20px;
 }
 .close {
-  transform: translate(55%,10px);
+  transform: translate(55%, 10px);
 }
 .blink {
-  animation : blink 1s linear infinite 0s normal;
+  animation: blink 1s linear infinite 0s normal;
 }
 @keyframes blink {
-  0% { opacity: 1; }
-  25% { opacity: 0; }
-  50% { opacity: 1; }
-  75% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>
     

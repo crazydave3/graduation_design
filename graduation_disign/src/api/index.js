@@ -1,15 +1,5 @@
 import requests from "./request";
-const fs = require('fs');
-const path = require('path');
 
-//     let dataBuffer = Buffer.from(pic, 'base64');
-//     fs.writeFile(`${time}.png`, dataBuffer, function(err) {
-//     if(err){
-//       res.send(err);
-//     }else{
-//       res.send("保存成功！");
-//     }
-// });
 //人脸识别
 export const IdentifyFace = (params) => requests({
     url: `/face/v3/search?access_token=24.b35797b9a33f0bde7326ab82ed339e4c.2592000.1682433318.282335-31686314`,
