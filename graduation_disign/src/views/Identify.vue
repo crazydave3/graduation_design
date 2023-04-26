@@ -2,7 +2,7 @@
   <div>
     <!-- 提示区域 start -->
     <div align="center" class="info">
-      <p v-if="infoFlag === 1">请正视摄像头</p>
+      <p v-if="infoFlag === 1">请摘下眼镜和口罩正视摄像头</p>
       <p v-else-if="infoFlag === 2">正在识别</p>
       <p v-else>识别{{ flag }}</p>
     </div>
@@ -29,6 +29,7 @@
 import tracking from '@/assets/tracking/build/tracking-min.js'
 import '@/assets/tracking/build/data/face-min.js'
 import { IdentifyFace, FindCriminal } from '../api'
+import axios from 'axios'
 export default {
   name: 'Identify',
   data() {
@@ -44,7 +45,8 @@ export default {
         image: '',
         image_type: 'BASE64',
         group_id_list: 'hjm',
-        max_face_num: 10
+        max_face_num: 10,
+        match_threshold: 80
       },
       // 提示
       infoFlag: 1,
@@ -73,7 +75,6 @@ export default {
   methods: {
     // 初始化设置
     init() {
-      let time = this.getTime()
       let haveCriminal = localStorage.getItem('haveCriminal')
       if (haveCriminal === 'true') {
         this.haveCriminal()
@@ -123,6 +124,7 @@ export default {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
       const base64Img = canvas.toDataURL('image/jpeg')
       const pic = base64Img.substring(23)
+      const time = this.getTime()
 
       // 使用 base64Img 请求接口即可
       this.params.image = pic
@@ -135,7 +137,18 @@ export default {
       this.uploadLock = true
 
       if (result.error_code == 0) {
+        const dir = 'D:/img/identify/'
+        const fileName =
+          `${time}` + `${result.result.user_list[0].user_id}` + '.png'
         console.log(result)
+        //把图片存进本地
+        this.putPicIdentify(pic.toString(), dir, fileName)
+        //存数据进数据库
+        this.putIdentifyData(
+          dir + fileName,
+          `${result.result.user_list[0].user_id}`,
+          `${time}`
+        )
         this.flag = '成功'
       } else {
         this.flag = '失败,请摘下口罩和眼睛重新识别'
@@ -151,7 +164,26 @@ export default {
       this.infoFlag = 3
       //FindCriminal
       if (result1.error_code == 0) {
+        const dir = 'D:/img/monitor/'
+        const fileName =
+          `${time}` +
+          `${result1.result.face_list[0].user_list[0].user_id}` +
+          '.png'
         console.log(result1)
+        //把图片存进本地
+        this.putPicMonitor(
+          pic.toString(),
+          'D:\\img\\monitor',
+          `${time}` +
+            `${result1.result.face_list[0].user_list[0].user_id}` +
+            '.png'
+        )
+        //存数据进数据库
+        this.putMonitorData(
+          dir + fileName,
+          `${result1.result.face_list[0].user_list[0].user_id}`,
+          `${time}`
+        )
         this.haveCriminal()
       } else {
         console.log(
@@ -212,6 +244,58 @@ export default {
       }
 
       return new Date().Format('yyyy-MM-dd HH时mm分ss秒')
+    },
+    putPicIdentify(pic, dir, fileName) {
+      axios({
+        url: 'http://127.0.0.1:80/identify',
+        method: 'get',
+        params: {
+          pic,
+          dir,
+          fileName
+        }
+      }).then((res) => {
+        console.log(res)
+      })
+    },
+    putPicMonitor(pic, dir, fileName) {
+      axios({
+        url: 'http://127.0.0.1:80/monitor',
+        method: 'get',
+        params: {
+          pic,
+          dir,
+          fileName
+        }
+      }).then((res) => {
+        console.log(res)
+      })
+    },
+    putIdentifyData(photo, name, time) {
+      axios({
+        url: 'http://127.0.0.1:80/addidentify',
+        method: 'post',
+        data: {
+          photo,
+          name,
+          time
+        }
+      }).then((res) => {
+        console.log(res)
+      })
+    },
+    putMonitorData(photo, name, time) {
+      axios({
+        url: 'http://127.0.0.1:80/addmonitor',
+        method: 'post',
+        data: {
+          photo,
+          name,
+          time
+        }
+      }).then((res) => {
+        console.log(res)
+      })
     },
     // 关闭摄像头
     destroyed() {

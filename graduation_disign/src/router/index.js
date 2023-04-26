@@ -11,13 +11,14 @@ import Home from '../views/Home'
 import Admin from '../views/Home/Admin'
 import FaceHandele from '../views/Home/FaceHandle'
 import CriminalFaceHandle from '../views/Home/CriminalFaceHandle'
+import CountPeople from '../views/Home/CountPeople'
+
 Vue.use(VueRouter)
 
-const routes = [
-    // {
-    //     path: '/',
-    //     redirect: '/login'
-    // },
+const routes = [{
+        path: '/',
+        redirect: '/identify'
+    },
     {
         path: '/login',
         component: Login,
@@ -42,6 +43,10 @@ const routes = [
             {
                 path: 'criminalfacehandle',
                 component: CriminalFaceHandle,
+            },
+            {
+                path: 'countPeople',
+                component: CountPeople,
             },
             {
                 path: '/home',

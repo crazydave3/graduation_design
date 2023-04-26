@@ -3,17 +3,17 @@
     <el-table :data="
         tableData.slice((currentPage - 1) * pagesize, currentPage * pagesize)
       " style="width: 100%">
-      <el-table-column prop="photo" label="人脸">
+      <el-table-column prop="photo" label="照片">
         <template slot-scope="scope">
           <!-- {{ scope.row.photo }} -->
           <img
-            :src="require('D:/img/monitor' + scope.row.photo)"
+            :src="require('D:/img/count' + scope.row.photo)"
             width="150px"
             height="100px"
           />
         </template>
       </el-table-column>
-      <el-table-column prop="name" label="姓名"> </el-table-column>
+      <el-table-column prop="peopleNum" label="人数"> </el-table-column>
       <el-table-column prop="time" label="时间"> </el-table-column>
       <el-table-column align="right">
         <template slot-scope="scope">
@@ -69,7 +69,7 @@
 import axios from 'axios'
 
 export default {
-  name: 'CriminalFaceHandle',
+  name: 'CountPeople',
   data() {
     return {
       currentPage: 1, //初始页
@@ -96,7 +96,16 @@ export default {
         title: [
           { required: true, message: 'title is required', trigger: 'blur' }
         ]
-      }
+      },
+      textMap: {
+        update: '编辑'
+      },
+
+      dialogStatus: '',
+      dialogFormVisible: false,
+      disabled: false,
+
+      downloadLoading: false
     }
   },
   mounted() {
@@ -116,10 +125,9 @@ export default {
       this.currentPage = currentPage
       console.log(this.currentPage) //点击第几页
     },
-
     getData() {
       axios({
-        url: 'http://127.0.0.1:80/getmonitor',
+        url: 'http://127.0.0.1:80/getcount',
         method: 'get'
       }).then((res) => {
         this.tableData = res.data
@@ -138,25 +146,15 @@ export default {
     //删除
     handleDelete(index, row) {
       axios({
-        url: 'http://127.0.0.1:80/deletemonitor',
+        url: 'http://127.0.0.1:80/deletecount',
         method: 'get',
         params: {
-          photo: 'D:/img/monitor' + row.photo
+          photo: 'D:/img/count' + row.photo
         }
       }).then((res) => {
         console.log(res)
       })
       location.reload()
-    },
-    handleSizeChange(size) {
-      console.log(size, 'size')
-      this.pagesize = size
-      console.log(this.pagesize) //每页下拉显示数据
-    },
-    handleCurrentChange(currentPage) {
-      console.log(currentPage, 'currentPage')
-      this.currentPage = currentPage
-      console.log(this.currentPage) //点击第几页
     }
   }
 }

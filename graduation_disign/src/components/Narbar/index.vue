@@ -4,7 +4,12 @@
     <ul>
       <li><router-link class="a" to="admin">账号管理</router-link></li>
       <li><router-link class="a" to="facehandle">入闸人脸管理</router-link></li>
-      <li><router-link class="a" to="criminalfacehandle">罪犯人脸管理</router-link></li>
+      <li>
+        <router-link class="a" to="criminalfacehandle"
+          >罪犯人脸管理</router-link
+        >
+      </li>
+      <li><router-link class="a" to="countPeople">人流量统计</router-link></li>
     </ul>
   </nav>
 </template>
@@ -13,9 +18,14 @@
 export default {
   name: 'Narbar',
   data() {
-    return {}
+    return {
+      path: window.location.href
+    }
   },
-  methods: {}
+  mounted() {
+  },
+  methods: {
+  }
 }
 </script>
   

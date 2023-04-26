@@ -24,11 +24,15 @@
     </div>
     <!-- 摄像区域 end -->
     <div class="alert">
-      <div class="overPerson"><div class="overPerson1"></div><button class="close" @click="close">关闭</button></div>
-      <div class="haveCriminal"><div class="haveCriminal1"></div><button class="close" @click="close">关闭</button></div>
+      <div class="overPerson">
+        <div class="overPerson1"></div>
+        <button class="close" @click="close">关闭</button>
+      </div>
+      <div class="haveCriminal">
+        <div class="haveCriminal1"></div>
+        <button class="close" @click="close">关闭</button>
+      </div>
     </div>
-    
-
   </div>
 </template>
   
@@ -38,7 +42,6 @@ import '@/assets/tracking/build/data/face-min.js'
 // import {mapGetters,mapState} from 'vuex'
 import { FindCriminal, CountPerson } from '../api'
 import axios from 'axios'
-
 
 export default {
   name: 'Monitor',
@@ -52,12 +55,13 @@ export default {
         image: '',
         image_type: 'BASE64',
         group_id_list: 'hjm',
-        max_face_num: 10
+        max_face_num: 10,
+        match_threshold: 80
       },
-      
+
       //人数
       count: 0,
-      maxPerson:0,
+      maxPerson: 0,
 
       // 提示
       infoFlag: 1,
@@ -77,8 +81,7 @@ export default {
     }
   },
   mounted() {
-    this.init(),
-    this.getmaxperson()
+    this.init(), this.getmaxperson()
   },
   computed: {
     // ...mapState({
@@ -94,7 +97,7 @@ export default {
         url: 'http://127.0.0.1:80/getadmin',
         method: 'get'
       }).then((res) => {
-        console.log( res.data[0]);
+        console.log(res.data[0])
         this.maxPerson = res.data[0].maxPerson
         // this.admin = res.data[0]
       })
@@ -126,7 +129,7 @@ export default {
     async screenshotAndUpload() {
       // 上锁避免重复发送请求
       this.uploadLock = false
-      console.log('ing');
+      console.log('ing')
       // 绘制当前帧图片转换为base64格式
       const canvas = this.screenshotCanvas
       const video = this.video
@@ -135,6 +138,7 @@ export default {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
       const base64Img = canvas.toDataURL('image/jpeg')
       const pic = base64Img.substring(23)
+      const time = this.getTime()
 
       if (base64Img) this.infoFlag = 2
       // 使用 base64Img 请求接口即可
@@ -142,16 +146,23 @@ export default {
       this.params1.image = pic
 
       // 请求接口成功以后打开锁
-      
+
       let result = await CountPerson(this.params)
       let result1 = await FindCriminal(this.params1)
       this.uploadLock = true
 
       //CountPerson
       if (result.error_code == undefined) {
+        const dir = 'D:/img/count/'
+        const fileName =
+          `${time}` + `${result.person_num}` + '人.png'
         console.log(result)
         this.count = result.person_num
-        if(this.count > this.maxPerson) {
+        //把图片存进本地
+        this.putPicCount(pic.toString(), dir, fileName)
+        //存数据进数据库
+        this.putCountData(dir + fileName, result.person_num, `${time}`)
+        if (this.count > this.maxPerson) {
           this.overPerson()
         }
         this.infoFlag = 3
@@ -167,7 +178,26 @@ export default {
       }
       //FindCriminal
       if (result1.error_code == 0) {
+        const dir = 'D:/img/monitor/'
+        const fileName =
+          `${time}` +
+          `${result1.result.face_list[0].user_list[0].user_id}` +
+          '.png'
         console.log(result1)
+        //把图片存进本地
+        this.putPicMonitor(
+          pic.toString(),
+          'D:\\img\\monitor',
+          `${time}` +
+            `${result1.result.face_list[0].user_list[0].user_id}` +
+            '.png'
+        )
+        //存数据进数据库
+        this.putMonitorData(
+          dir + fileName,
+          `${result1.result.face_list[0].user_list[0].user_id}`,
+          `${time}`
+        )
         this.haveCriminal()
         this.infoFlag = 3
       } else {
@@ -205,11 +235,11 @@ export default {
       if (result.error_code === undefined) {
         console.log(result)
         this.count = result.person_num
-        if(this.count > this.maxPerson) {
+        if (this.count > this.maxPerson) {
           this.overPerson()
         }
         this.infoFlag = 3
-       } else {
+      } else {
         console.log(
           'error_code:',
           result.error_code,
@@ -233,29 +263,106 @@ export default {
       })
     },
     //超过人数overPerson
-    overPerson(){
-      let overPerson = document.getElementsByClassName("overPerson")
-      console.log(overPerson);
+    overPerson() {
+      let overPerson = document.getElementsByClassName('overPerson')
+      console.log(overPerson)
       overPerson[0].style.display = 'block'
-
     },
     //查到罪犯显示haveCriminal
-    haveCriminal(){
-      let haveCriminal = document.getElementsByClassName("haveCriminal")
+    haveCriminal() {
+      let haveCriminal = document.getElementsByClassName('haveCriminal')
       haveCriminal[0].style.display = 'block'
       let haveCriminal1 = document.getElementsByClassName('haveCriminal1')
-      console.log(haveCriminal1);
+      console.log(haveCriminal1)
       haveCriminal1[0].classList.add('blink')
-
     },
     //隐藏节点
-    close(event){
-      console.log(event.currentTarget.parentElement.style);
-      event.currentTarget.parentElement.style.display = "none"
-      console.log(event.currentTarget.parentElement.style);
-
+    close(event) {
+      console.log(event.currentTarget.parentElement.style)
+      event.currentTarget.parentElement.style.display = 'none'
+      console.log(event.currentTarget.parentElement.style)
     },
-
+    //获取当前时间
+    getTime() {
+      Date.prototype.Format = function (fmt) {
+        var o = {
+          'M+': this.getMonth() + 1, //月份
+          'd+': this.getDate(), //日
+          'H+': this.getHours(), //小时
+          'm+': this.getMinutes(), //分
+          's+': this.getSeconds(), //秒
+          'q+': Math.floor((this.getMonth() + 3) / 3), //季度
+          S: this.getMilliseconds() //毫秒
+        }
+        if (/(y+)/.test(fmt))
+          fmt = fmt.replace(
+            RegExp.$1,
+            (this.getFullYear() + '').substr(4 - RegExp.$1.length)
+          )
+        for (var k in o)
+          if (new RegExp('(' + k + ')').test(fmt))
+            fmt = fmt.replace(
+              RegExp.$1,
+              RegExp.$1.length == 1
+                ? o[k]
+                : ('00' + o[k]).substr(('' + o[k]).length)
+            )
+        return fmt
+      }
+      return new Date().Format('yyyy-MM-dd HH时mm分ss秒')
+    },
+    putPicCount(pic, dir, fileName) {
+      axios({
+        url: 'http://127.0.0.1:80/count',
+        method: 'get',
+        params: {
+          pic,
+          dir,
+          fileName
+        }
+      }).then((res) => {
+        console.log(res)
+      })
+    },
+    putPicMonitor(pic, dir, fileName) {
+      axios({
+        url: 'http://127.0.0.1:80/monitor',
+        method: 'get',
+        params: {
+          pic,
+          dir,
+          fileName
+        }
+      }).then((res) => {
+        console.log(res)
+      })
+    },
+    putCountData(photo, peopleNum, time) {
+      axios({
+        url: 'http://127.0.0.1:80/addcount',
+        method: 'post',
+        data: {
+          photo,
+          peopleNum,
+          time
+        }
+      }).then((res) => {
+        console.log(res)
+      })
+    },
+    putMonitorData(photo, name, time) {
+      axios({
+        url: 'http://127.0.0.1:80/addmonitor',
+        method: 'post',
+        data: {
+          photo,
+          name,
+          time
+        }
+      }).then((res) => {
+        console.log(res)
+      })
+    },
     // 关闭摄像头
     destroyed() {
       if (!this.mediaStreamTrack) return
@@ -327,14 +434,14 @@ export default {
   bottom: 5%;
   transform: translate(-50%, 0);
 }
-.overPerson{
+.overPerson {
   display: none;
 }
 
-.haveCriminal{
+.haveCriminal {
   display: none;
 }
-.overPerson1{
+.overPerson1 {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -342,7 +449,7 @@ export default {
   margin: 0 20px;
 }
 
-.haveCriminal1{
+.haveCriminal1 {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -350,17 +457,27 @@ export default {
   margin: 0 20px;
 }
 .close {
-  transform: translate(55%,10px);
+  transform: translate(55%, 10px);
 }
 .blink {
-  animation : blink 1s linear infinite 0s normal;
+  animation: blink 1s linear infinite 0s normal;
 }
 @keyframes blink {
-  0% { opacity: 1; }
-  25% { opacity: 0; }
-  50% { opacity: 1; }
-  75% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>
   

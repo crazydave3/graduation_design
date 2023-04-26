@@ -32,7 +32,6 @@
   <script>
 import tracking from '@/assets/tracking/build/tracking-min.js'
 import '@/assets/tracking/build/data/face-min.js'
-// import {mapGetters,mapState} from 'vuex'
 import { CountPerson } from '../api'
 
 export default {
