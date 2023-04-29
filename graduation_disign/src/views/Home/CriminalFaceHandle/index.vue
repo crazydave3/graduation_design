@@ -1,8 +1,49 @@
 <template>
   <div>
-    <el-table :data="
-        tableData.slice((currentPage - 1) * pagesize, currentPage * pagesize)
-      " style="width: 100%">
+    <el-form>
+      <el-form-item>
+        <el-col :span="18" class="left">
+          选择时间
+
+          <el-date-picker
+            v-model="search_data.startTime"
+            type="datetime"
+            placeholder="选择日期时间"
+            value-format="yyyy-MM-dd HH:mm:ss"
+          >
+          </el-date-picker>
+          --
+          <el-date-picker
+            v-model="search_data.endTime"
+            type="datetime"
+            placeholder="选择日期时间"
+            value-format="yyyy-MM-dd HH:mm:ss"
+          >
+          </el-date-picker>
+          <el-button
+            type="primary"
+            size="small"
+            icon="search"
+            @click="imtScreen()"
+            >筛选</el-button
+          >
+        </el-col>
+
+        <el-col :span="3" class="grid">
+          <el-input
+            v-model="search"
+            placeholder="请输入查询内容"
+            size="mini"
+          ></el-input>
+        </el-col>
+        <el-col :span="1" class="grid">
+          <el-button type="primary" size="small" icon="search" @click="find()"
+            >筛选</el-button
+          >
+        </el-col>
+      </el-form-item>
+    </el-form>
+    <el-table :data="tableData" style="width: 100%">
       <el-table-column prop="photo" label="人脸">
         <template slot-scope="scope">
           <!-- {{ scope.row.photo }} -->
@@ -30,11 +71,11 @@
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-size="pagesize"
+        :current-page="paginations.page_index"
+        :page-size="paginations.page_size"
         :page-sizes="[1, 2, 5, 10]"
         layout="total, sizes, prev, pager, next ,jumper"
-        :total="tableData.length"
+        :total="paginations.total"
       >
       </el-pagination>
     </div>
@@ -72,10 +113,19 @@ export default {
   name: 'CriminalFaceHandle',
   data() {
     return {
-      currentPage: 1, //初始页
-      pagesize: 5, //    每页的数据
+      //需要给分页组件传的信息
+      paginations: {
+        page_index: 1, // 当前位于哪页
+        total: 0, // 总数
+        page_size: 5, // 1页显示多少条
+        layout: 'total, sizes, prev, pager, next, jumper' // 翻页属性
+      },
       tableData: [],
-      tableData1: [],
+      filterTableData: [], //经过时间筛选后得到的数据
+      search_data: {
+        startTime: '',
+        endTime: ''
+      },
       search: '',
       admin: {
         account: '',
@@ -106,17 +156,74 @@ export default {
     changeadmin() {
       this.$router.push({ path: '/home' })
     },
-    handleSizeChange(size) {
-      console.log(size, 'size')
-      this.pagesize = size
-      console.log(this.pagesize) //每页下拉显示数据
+    handleCurrentChange(page) {
+      // 当前页
+      let sortnum = this.paginations.page_size * (page - 1)
+      let table = this.filterTableData.filter((item, index) => {
+        return index >= sortnum
+      })
+      // 设置默认分页数据
+      this.tableData = table.filter((item, index) => {
+        return index < this.paginations.page_size
+      })
     },
-    handleCurrentChange(currentPage) {
-      console.log(currentPage, 'currentPage')
-      this.currentPage = currentPage
-      console.log(this.currentPage) //点击第几页
+    handleSizeChange(page_size) {
+      // 切换size
+      this.paginations.page_index = 1
+      this.paginations.page_size = page_size
+      this.tableData = this.filterTableData.filter((item, index) => {
+        return index < page_size
+      })
+    },
+    setPaginations() {
+      // 总页数
+      this.paginations.total = this.tableData.length
+      this.paginations.page_index = 1
+      this.paginations.page_size = 5
+      // 设置默认分页数据
+      console.log(this.tableData)
+      this.tableData = this.tableData.filter((item, index) => {
+        return index < this.paginations.page_size
+      })
+    },
+    imtScreen() {
+      //判断是否输入时间区间
+      if (!this.search_data.startTime || !this.search_data.endTime) {
+        this.$message({
+          type: 'warning',
+          message: '请选择时间区间！'
+        })
+      }
+      //获取全部表格数据
+      // this.getData()
+      const stime = new Date(this.search_data.startTime).getTime()
+      const etime = new Date(this.search_data.endTime).getTime()
+      //将筛选后的数据赋值给 allTableDate
+      this.tableData = this.filterTableData.filter((item) => {
+        //筛选后得到的数据 item 中包含数据日期 date
+        //创建一个数组 date，存储得到的item.date
+        let date = new Date(item.date)
+        let time = date.getTime()
+
+        return time >= stime && time <= etime
+      })
+      //重新分页
+      this.setPaginations()
+    },
+    find() {
+      //在你的数据表格中定义tabels
+      console.log(this.search)
+      const search = this.search
+      if (search) {
+        // console.log("input输入的搜索内容：" + this.input)
+        this.tableData = this.filterTableData.filter((data) =>
+          data.name.toLowerCase().includes(search.toLowerCase())
+        )
+      }
+      this.setPaginations()
     },
 
+    //获取数据
     getData() {
       axios({
         url: 'http://127.0.0.1:80/getmonitor',
@@ -130,9 +237,15 @@ export default {
             a,
             this.tableData[i].photo.length
           )
+          this.tableData[i].date = this.tableData[i].time
+            .replace('时', ':')
+            .replace('分', ':')
+            .replace('秒', '')
           this.tableData[i].photo = imgName
-          this.total = this.tableData.length
+          this.paginations.total = this.tableData.length
         }
+        this.filterTableData = this.tableData
+        this.setPaginations()
       })
     },
     //删除
@@ -148,16 +261,6 @@ export default {
       })
       location.reload()
     },
-    handleSizeChange(size) {
-      console.log(size, 'size')
-      this.pagesize = size
-      console.log(this.pagesize) //每页下拉显示数据
-    },
-    handleCurrentChange(currentPage) {
-      console.log(currentPage, 'currentPage')
-      this.currentPage = currentPage
-      console.log(this.currentPage) //点击第几页
-    }
   }
 }
 </script>
