@@ -43,7 +43,7 @@
         </el-col>
       </el-form-item>
     </el-form>
-    <el-table :data="tableData" style="width: 100%">
+    <el-table :data="showTableData" style="width: 100%">
       <el-table-column prop="photo" label="人脸">
         <template slot-scope="scope">
           <!-- {{ scope.row.photo }} -->
@@ -121,7 +121,8 @@ export default {
         layout: 'total, sizes, prev, pager, next, jumper' // 翻页属性
       },
       tableData: [],
-      filterTableData: [], //经过时间筛选后得到的数据
+      filterTableData: [],
+      showTableData: [],
       search_data: {
         startTime: '',
         endTime: ''
@@ -159,11 +160,11 @@ export default {
     handleCurrentChange(page) {
       // 当前页
       let sortnum = this.paginations.page_size * (page - 1)
-      let table = this.filterTableData.filter((item, index) => {
+      let table = this.tableData.filter((item, index) => {
         return index >= sortnum
       })
       // 设置默认分页数据
-      this.tableData = table.filter((item, index) => {
+      this.showTableData = table.filter((item, index) => {
         return index < this.paginations.page_size
       })
     },
@@ -171,7 +172,7 @@ export default {
       // 切换size
       this.paginations.page_index = 1
       this.paginations.page_size = page_size
-      this.tableData = this.filterTableData.filter((item, index) => {
+      this.showTableData = this.tableData.filter((item, index) => {
         return index < page_size
       })
     },
@@ -182,7 +183,7 @@ export default {
       this.paginations.page_size = 5
       // 设置默认分页数据
       console.log(this.tableData)
-      this.tableData = this.tableData.filter((item, index) => {
+      this.showTableData = this.tableData.filter((item, index) => {
         return index < this.paginations.page_size
       })
     },
@@ -244,6 +245,7 @@ export default {
           this.paginations.total = this.tableData.length
         }
         this.filterTableData = this.tableData
+        this.showTableData = this.tableData
         this.setPaginations()
       })
     },
