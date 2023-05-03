@@ -2,7 +2,10 @@
     <div>
       <el-table :data="tableData" style="width: 100%">
         <el-table-column prop="account" label="账号"> </el-table-column>
-        <el-table-column prop="password" label="密码"> </el-table-column>
+        <!-- <el-table-column prop="password" label="密码"> </el-table-column> -->
+        <el-table-column prop="maxPerson" label="最大容纳人数"> </el-table-column>
+        <el-table-column prop="monitorInterval" label="监控间隔"> </el-table-column>
+
         <el-table-column align="right">
           <template slot-scope="scope">
             <el-button size="mini" @click="handleEdit(scope.$index, scope.row)"
@@ -28,6 +31,12 @@
           <el-form-item label="密码" prop="password">
             <el-input v-model="admin.password" />
           </el-form-item>
+          <el-form-item label="最大容纳人数" prop="maxPerson">
+            <el-input v-model="admin.maxPerson" />
+          </el-form-item>
+          <el-form-item label="监控间隔" prop="monitorInterval">
+            <el-input v-model="admin.monitorInterval" />
+          </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false"> 取消 </el-button>
@@ -48,10 +57,7 @@
         tableData: [],
         tableData1: [],
         search: '',
-        admin: {
-          account: '',
-          password: ''
-        },
+        admin: {},
         rules: {
           type: [
             { required: true, message: 'type is required', trigger: 'change' }
@@ -92,6 +98,7 @@
           method: 'get'
         }).then((res) => {
           this.tableData = res.data
+          this.admin = this.tableData[0]
           // this.admin = res.data[0]
         })
       },
@@ -121,10 +128,7 @@
       },
       //重置数据
       resetStudent() {
-        this.admin = {
-          account: '',
-          password: ''
-        }
+        this.admin = this.tableData[0]
       },
       //更新数据
       updateData() {
