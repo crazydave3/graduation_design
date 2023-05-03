@@ -2,7 +2,7 @@
   <div>
     <!-- 提示区域 start -->
     <div align="center" class="info">
-      <p v-if="infoFlag === 1">监视中</p>
+      <p v-if="infoFlag === 1">监视中,{{ time }}秒后拍照识别罪犯和统计人数</p>
       <p v-else-if="infoFlag === 2">正在识别罪犯和统计人流</p>
       <p v-else>统计完毕:共有:{{ count }}人</p>
     </div>
@@ -62,9 +62,11 @@ export default {
       //人数
       count: 0,
       maxPerson: 0,
+      monitorInterval: 0,
 
       // 提示
       infoFlag: 1,
+      time: 0,
 
       // 摄像
       trackerTask: null,
@@ -77,11 +79,13 @@ export default {
 
       //定时器
       timer: null,
-      timer1: null
+      timer1: null,
+      timer2: null
     }
   },
   mounted() {
-    this.init(), this.getmaxperson()
+    this.init()
+    this.getmaxperson()
   },
   computed: {
     // ...mapState({
@@ -99,6 +103,8 @@ export default {
       }).then((res) => {
         console.log(res.data[0])
         this.maxPerson = res.data[0].maxPerson
+        this.monitorInterval = res.data[0].monitorInterval
+        this.time = this.monitorInterval
         // this.admin = res.data[0]
       })
     },
@@ -118,15 +124,21 @@ export default {
       this.trackerTask = window.tracking.track('#video', tracker, {
         camera: true
       })
-
       const _this = this
       this.timer = setInterval(() => {
-        _this.uploadLock && _this.screenshotAndUpload()
-      }, 3000)
+        if (this.time === 0) _this.uploadLock && _this.screenshotAndUpload()
+      }, 1000)
+      this.timer1 = setInterval(() => {
+        this.time--
+      }, 1000)
     },
 
     // 上传图片
     async screenshotAndUpload() {
+      clearInterval(this.timer)
+      clearInterval(this.timer1)
+      if (this.timer) clearTimeout(this.timer2)
+
       // 上锁避免重复发送请求
       this.uploadLock = false
       console.log('ing')
@@ -154,9 +166,8 @@ export default {
       //CountPerson
       if (result.error_code == undefined) {
         const dir = 'D:/img/count/'
-        const fileName =
-          `${time}` + `${result.person_num}` + '人.png'
-        console.log(result)
+        const fileName = `${time}` + `${result.person_num}` + '人.png'
+        // console.log(result)
         this.count = result.person_num
         //把图片存进本地
         this.putPicCount(pic.toString(), dir, fileName)
@@ -166,6 +177,16 @@ export default {
           this.overPerson()
         }
         this.infoFlag = 3
+        this.timer1 = setTimeout(() => {
+          this.time = this.monitorInterval
+          this.infoFlag = 1
+          this.timer2 = setInterval(() => {
+            this.time--
+            if (this.time === 0) {
+              this.uploadLock && this.screenshotAndUpload()
+            }
+          }, 1000)
+        }, 3000)
       } else {
         console.log(
           'error_code:',
@@ -183,7 +204,7 @@ export default {
           `${time}` +
           `${result1.result.face_list[0].user_list[0].user_id}` +
           '.png'
-        console.log(result1)
+        // console.log(result1)
         //把图片存进本地
         this.putPicMonitor(
           pic.toString(),
@@ -233,12 +254,22 @@ export default {
     async Count() {
       let result = await CountPerson(this.params)
       if (result.error_code === undefined) {
-        console.log(result)
         this.count = result.person_num
         if (this.count > this.maxPerson) {
           this.overPerson()
         }
         this.infoFlag = 3
+        this.time = this.monitorInterval
+        this.timer1 = setTimeout(() => {
+          this.time = this.monitorInterval
+          this.infoFlag = 1
+          this.timer2 = setInterval(() => {
+            this.time--
+            if (this.time === 0) {
+              this.uploadLock && this.screenshotAndUpload()
+            }
+          }, 1000)
+        }, 3000)
       } else {
         console.log(
           'error_code:',
@@ -265,7 +296,6 @@ export default {
     //超过人数overPerson
     overPerson() {
       let overPerson = document.getElementsByClassName('overPerson')
-      console.log(overPerson)
       overPerson[0].style.display = 'block'
     },
     //查到罪犯显示haveCriminal
@@ -273,14 +303,11 @@ export default {
       let haveCriminal = document.getElementsByClassName('haveCriminal')
       haveCriminal[0].style.display = 'block'
       let haveCriminal1 = document.getElementsByClassName('haveCriminal1')
-      console.log(haveCriminal1)
       haveCriminal1[0].classList.add('blink')
     },
     //隐藏节点
     close(event) {
-      console.log(event.currentTarget.parentElement.style)
       event.currentTarget.parentElement.style.display = 'none'
-      console.log(event.currentTarget.parentElement.style)
     },
     //获取当前时间
     getTime() {
@@ -365,6 +392,8 @@ export default {
     },
     // 关闭摄像头
     destroyed() {
+      clearTimeout(this.timer1)
+      clearTimeout(this.timer2)
       if (!this.mediaStreamTrack) return
       this.mediaStreamTrack.srcObject.getTracks()[0].stop()
       this.trackerTask.stop(), clearTimeout(this.timer)
