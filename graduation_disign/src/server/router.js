@@ -31,8 +31,67 @@ router.get('/monitor', (req, res) => {
             console.log(err);
         } else {}
     })
-})
-
+});
+router.get('/register', (req, res) => {
+    console.log(path.join(req.query.dir, req.query.fileName));
+    const dataBuffer = Buffer.from(req.query.pic, 'base64');
+    fs.writeFile(path.join(req.query.dir, req.query.fileName), dataBuffer, function(err) {
+        if (err) {
+            console.log(err);
+        } else {}
+    })
+});
+router.get('/criminal', (req, res) => {
+    console.log(req.query.pic);
+    console.log(path.join(req.query.dir, req.query.fileName));
+    const dataBuffer = Buffer.from(req.query.pic, 'base64');
+    console.log(dataBuffer);
+    fs.writeFile(path.join(req.query.dir, req.query.fileName), dataBuffer, function(err) {
+        if (err) {
+            console.log(err);
+        } else {}
+    })
+});
+//获取注册信息
+router.get('/getregister', (request, response) => {
+    let sql = 'select * from people';
+    db.query(sql, (error, result) => {
+        if (error) return console.log(error.message);
+        response.send(result);
+    })
+});
+//注册添加进数据库
+router.post('/addregister', (request, response) => {
+    console.log(1);
+    let sql = 'insert into people set ?'
+        // console.log(request.body)
+    db.query(sql, request.body, (error, result) => {
+        if (error) return console.log(error.message);
+        if (result.affectedRows === 1) {
+            response.send('success');
+        }
+    })
+});
+//获取罪犯信息
+router.get('/getcriminal', (request, response) => {
+    let sql = 'select * from criminal';
+    db.query(sql, (error, result) => {
+        if (error) return console.log(error.message);
+        response.send(result);
+    })
+});
+//添加罪犯信息进数据库
+router.post('/addcriminal', (request, response) => {
+    console.log(1);
+    let sql = 'insert into criminal set ?'
+        // console.log(request.body)
+    db.query(sql, request.body, (error, result) => {
+        if (error) return console.log(error.message);
+        if (result.affectedRows === 1) {
+            response.send('success');
+        }
+    })
+});
 //获取账号密码
 router.get('/getadmin', (request, response) => {
     let sql = 'select * from admin';

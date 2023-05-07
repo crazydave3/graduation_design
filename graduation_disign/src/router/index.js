@@ -4,9 +4,9 @@ import VueRouter from 'vue-router'
 import Monitor from '../views/Monitor'
 import Register from '../views/Register'
 import Identify from '../views/Identify'
-import Count from '../views/Count'
 import Login from '../views/Login'
 import Home from '../views/Home'
+import Criminal from '../views/Criminal'
 //引入二级路由组件
 import Admin from '../views/Home/Admin'
 import FaceHandele from '../views/Home/FaceHandle'
@@ -76,12 +76,12 @@ const routes = [{
         }
     },
     {
-        path: '/count',
-        component: Count,
+        path: '/criminal',
+        component: Criminal,
         meta: {
             isShow: true
         }
-    }
+    },
 ]
 
 const router = new VueRouter({

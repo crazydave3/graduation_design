@@ -2,9 +2,8 @@
   <div>
     <el-form>
       <el-form-item>
-        <el-col :span="18" class="left">
+        <el-col :span="16" class="left">
           选择时间
-
           <el-date-picker
             v-model="search_data.startTime"
             type="datetime"
@@ -28,7 +27,15 @@
             >筛选</el-button
           >
         </el-col>
-
+        <el-col :span="3" class="left">
+          <el-button
+            size="small"
+            type="primary"
+            @click="batchDelete"
+            :disabled="batchDeleteArr.length === 0"
+            >批量删除</el-button
+          >
+        </el-col>
         <el-col :span="3" class="grid">
           <el-input
             v-model="search"
@@ -43,7 +50,12 @@
         </el-col>
       </el-form-item>
     </el-form>
-    <el-table :data="showTableData" style="width: 100%">
+    <el-table
+      :data="showTableData"
+      style="width: 100%"
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column type="selection" width="55"> </el-table-column>
       <el-table-column prop="photo" label="人脸">
         <template slot-scope="scope">
           <!-- {{ scope.row.photo }} -->
@@ -73,36 +85,12 @@
         @current-change="handleCurrentChange"
         :current-page="paginations.page_index"
         :page-size="paginations.page_size"
-        :page-sizes="[1, 2, 5, 10]"
+        :page-sizes="[1, 2, 5, 10, 1000]"
         layout="total, sizes, prev, pager, next ,jumper"
         :total="paginations.total"
       >
       </el-pagination>
     </div>
-
-    <!-- 弹框 -->
-    <!-- <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form
-        ref="dataForm"
-        :rules="rules"
-        :model="admin"
-        label-position="left"
-        label-width="60px"
-        style="width: 350px; margin-left: 35px"
-      >
-        <el-form-item label="账号" prop="account">
-          <el-input v-model="admin.account" :disabled="disabled" />
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="admin.password" />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false"> 取消 </el-button>
-
-        <el-button type="primary" @click="updateData()"> 确定 </el-button>
-      </div>
-    </el-dialog> -->
   </div>
 </template>
     
@@ -123,6 +111,7 @@ export default {
       tableData: [],
       filterTableData: [],
       showTableData: [],
+      batchDeleteArr: [],
       search_data: {
         startTime: '',
         endTime: ''
@@ -158,18 +147,15 @@ export default {
       this.$router.push({ path: '/home' })
     },
     handleCurrentChange(page) {
-      // 当前页
       let sortnum = this.paginations.page_size * (page - 1)
       let table = this.tableData.filter((item, index) => {
         return index >= sortnum
       })
-      // 设置默认分页数据
       this.showTableData = table.filter((item, index) => {
         return index < this.paginations.page_size
       })
     },
     handleSizeChange(page_size) {
-      // 切换size
       this.paginations.page_index = 1
       this.paginations.page_size = page_size
       this.showTableData = this.tableData.filter((item, index) => {
@@ -177,11 +163,9 @@ export default {
       })
     },
     setPaginations() {
-      // 总页数
       this.paginations.total = this.tableData.length
       this.paginations.page_index = 1
       this.paginations.page_size = 5
-      // 设置默认分页数据
       console.log(this.tableData)
       this.showTableData = this.tableData.filter((item, index) => {
         return index < this.paginations.page_size
@@ -190,40 +174,46 @@ export default {
     imtScreen() {
       //判断是否输入时间区间
       if (!this.search_data.startTime || !this.search_data.endTime) {
+        this.tableData = this.filterTableData
         this.$message({
           type: 'warning',
-          message: '请选择时间区间！'
+          message: '请选择时间区间'
         })
       }
-      //获取全部表格数据
-      // this.getData()
       const stime = new Date(this.search_data.startTime).getTime()
       const etime = new Date(this.search_data.endTime).getTime()
-      //将筛选后的数据赋值给 allTableDate
-      this.tableData = this.filterTableData.filter((item) => {
-        //筛选后得到的数据 item 中包含数据日期 date
-        //创建一个数组 date，存储得到的item.date
-        let date = new Date(item.date)
-        let time = date.getTime()
+      if (!stime || !etime) {
+        this.tableData = this.filterTableData
+      } else {
+        this.tableData = this.filterTableData.filter((item) => {
+          let date = new Date(item.date)
+          let time = date.getTime()
 
-        return time >= stime && time <= etime
-      })
-      //重新分页
+          return time >= stime && time <= etime
+        })
+      }
       this.setPaginations()
     },
     find() {
-      //在你的数据表格中定义tabels
-      console.log(this.search)
       const search = this.search
       if (search) {
-        // console.log("input输入的搜索内容：" + this.input)
         this.tableData = this.filterTableData.filter((data) =>
           data.name.toLowerCase().includes(search.toLowerCase())
         )
-      }
+      } else this.tableData = this.filterTableData
       this.setPaginations()
     },
-
+    handleSelectionChange(val) {
+      this.batchDeleteArr = val
+      console.log(val)
+    },
+    // 批量删除
+    batchDelete() {
+      console.log(this.batchDeleteArr)
+      this.batchDeleteArr.map(async (item) => {
+        await this.handleDelete(0, item)
+      })
+    },
     //获取数据
     getData() {
       axios({

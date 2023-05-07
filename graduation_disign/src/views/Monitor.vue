@@ -37,9 +37,7 @@
 </template>
   
 <script>
-import tracking from '@/assets/tracking/build/tracking-min.js'
 import '@/assets/tracking/build/data/face-min.js'
-// import {mapGetters,mapState} from 'vuex'
 import { FindCriminal, CountPerson } from '../api'
 import axios from 'axios'
 
@@ -87,14 +85,6 @@ export default {
     this.init()
     this.getmaxperson()
   },
-  computed: {
-    // ...mapState({
-    //   faceDate: (state) => state.home.faceDate
-    // })
-  },
-  // beforeDestroy() {
-  //   clearInterval(this.timer)
-  // },
   methods: {
     getmaxperson() {
       axios({
@@ -110,6 +100,7 @@ export default {
     },
     // 初始化设置
     init() {
+      this.infoFlag = 1
       this.video = this.mediaStreamTrack = document.getElementById('video')
       this.screenshotCanvas = document.getElementById('screenshotCanvas')
 
@@ -231,12 +222,6 @@ export default {
         )
         return Promise.reject(new Error('faile'))
       }
-
-      // 关闭摄像头
-      // this.destroyed()
-
-      // 刷信当前页面
-      // this.refash()
     },
 
     //上传图片base64计算人数
@@ -259,17 +244,6 @@ export default {
           this.overPerson()
         }
         this.infoFlag = 3
-        this.time = this.monitorInterval
-        this.timer1 = setTimeout(() => {
-          this.time = this.monitorInterval
-          this.infoFlag = 1
-          this.timer2 = setInterval(() => {
-            this.time--
-            if (this.time === 0) {
-              this.uploadLock && this.screenshotAndUpload()
-            }
-          }, 1000)
-        }, 3000)
       } else {
         console.log(
           'error_code:',

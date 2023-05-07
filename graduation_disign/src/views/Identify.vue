@@ -62,8 +62,7 @@ export default {
       isShow: false,
 
       //定时器
-      timer: null,
-      timer1: null
+      timer: null
     }
   },
   mounted() {
@@ -96,17 +95,8 @@ export default {
       })
 
       const _this = this
-      const timer = setTimeout(() => {
-        tracker.on('track', function (event) {
-          // 检测出人脸 绘画人脸位置
-          context.clearRect(0, 0, canvas.width, canvas.height)
-          event.data.forEach(function (rect) {
-            context.strokeStyle = '#0764B7'
-            context.strokeRect(rect.x, rect.y, rect.width, rect.height)
-            // 上传图片
-            _this.uploadLock && _this.screenshotAndUpload()
-          })
-        })
+      this.timer = setTimeout(() => {
+        _this.uploadLock && _this.screenshotAndUpload()
       }, 3000)
     },
 
@@ -137,6 +127,7 @@ export default {
       this.uploadLock = true
 
       if (result.error_code == 0) {
+        this.flag = '成功'
         const dir = 'D:/img/identify/'
         const fileName =
           `${time}` + `${result.result.user_list[0].user_id}` + '.png'
@@ -149,10 +140,8 @@ export default {
           `${result.result.user_list[0].user_id}`,
           `${time}`
         )
-        this.flag = '成功'
       } else {
         this.flag = '失败,请摘下口罩和眼睛重新识别'
-
         console.log(
           'error_code:',
           result.error_code,
@@ -162,7 +151,6 @@ export default {
         )
       }
       this.infoFlag = 3
-      //FindCriminal
       if (result1.error_code == 0) {
         const dir = 'D:/img/monitor/'
         const fileName =
@@ -346,7 +334,6 @@ export default {
 .el-avatar {
   position: absolute;
   margin-left: 75px;
-  /* z-index: 999; */
 }
 
 /* 用户信息 */

@@ -2,7 +2,7 @@
   <div>
     <!-- 提示区域 start -->
     <div align="center" class="info">
-      <p v-if="infoFlag === 1">输入姓名和身份证号后请正视摄像头点击录入</p>
+      <p v-if="infoFlag === 1">请输入信息后点击录入</p>
       <p v-else-if="infoFlag === 2">录入成功</p>
       <p v-else-if="infoFlag === 3">录入失败,请检查是否输入姓名</p>
       <p v-else-if="infoFlag === 4">录入失败,请检查身份证长度是否为18位</p>
@@ -10,32 +10,28 @@
     </div>
     <!-- 提示区域 end -->
 
-    <!-- 摄像区域 start -->
-    <div class="video-box">
-      <video id="video" preload autoplay loop muted></video>
-      <canvas id="canvas"></canvas>
-      <canvas id="screenshotCanvas"></canvas>
-      <img src="../assets/defaultImg.png" alt="" />
-      <p>输入姓名<input type="text" v-model="name" /></p>
-      <p>
-        输入身份证号<input type="text" v-model="cardno" /><button
-          @click="confirm()"
-        >
-          录入
-        </button>
-      </p>
-    </div>
-    <!-- 摄像区域 end -->
+    <p>选择图片</p>
+    <input type="file" id="setPic" @change="setPic($event)" />
+    <div id="main"></div>
+    <p>输入姓名<input type="text" v-model="name" /></p>
+    <p>
+      输入身份证号<input type="text" v-model="cardno" /><button
+        @click="confirm()"
+      >
+        录入
+      </button>
+    </p>
   </div>
 </template>
   
   <script>
 import tracking from '@/assets/tracking/build/tracking-min.js'
 import '@/assets/tracking/build/data/face-min.js'
+import { SetFace } from '../api'
 import axios from 'axios'
 
 export default {
-  name: 'Register',
+  name: 'Criminal',
   data() {
     return {
       // 人脸参数
@@ -48,6 +44,7 @@ export default {
       name: '',
       cardno: '',
       tableData: [],
+      base64Img: '',
       // 提示
       infoFlag: 1,
 
@@ -64,43 +61,48 @@ export default {
     }
   },
   mounted() {
-    this.getRegister()
-    this.init()
+    this.getCriminal()
   },
   beforeDestroy() {
     clearInterval(this.timer)
   },
   methods: {
-    // 初始化设置
-    init() {
-      this.video = this.mediaStreamTrack = document.getElementById('video')
-      this.screenshotCanvas = document.getElementById('screenshotCanvas')
+    // 上传图片
+    setPic($event) {
+      this.toBase64($event.target.files[0])
+        .then((res) => {
+          this.params.image = res
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    },
+    toBase64(file) {
+      let _this = this
+      return new Promise(function (resolve, reject) {
+        let img = new FileReader()
+        img.onloadend = function (e) {
+          _this.base64Img = e.target.result
+          _this.Base64ToImage(_this.base64Img, function (img) {
+            document.getElementById('main').appendChild(img)
+          })
+        }
 
-      const canvas = document.getElementById('canvas')
-      const context = canvas.getContext('2d')
-
-      // 固定写法
-      const tracker = new window.tracking.ObjectTracker('face')
-      tracker.setInitialScale(4)
-      tracker.setStepSize(2)
-      tracker.setEdgesDensity(0.1)
-      this.trackerTask = window.tracking.track('#video', tracker, {
-        camera: true
+        if (file) {
+          img.readAsDataURL(file)
+        }
       })
     },
-
-    // 上传图片
+    Base64ToImage(base64Img, callback) {
+      var img = new Image()
+      img.onload = function () {
+        callback(img)
+      }
+      img.src = base64Img
+    },
     confirm() {
-      const canvas = this.screenshotCanvas
-      const video = this.video
-      const ctx = canvas.getContext('2d')
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-      const base64Img = canvas.toDataURL('image/jpeg')
-      const pic = base64Img.substring(23)
-      const dir = 'D:/img/people/'
+      const dir = 'D:/img/criminal/'
       const fileName = `${this.name}-${this.cardno}` + '.png'
-      console.log(this.name)
       const table = this.tableData.filter((t) => this.cardno === t.cardno)
       console.log(table)
 
@@ -113,29 +115,28 @@ export default {
           this.infoFlag = 5
         }
       } else {
-        this.putPicRegister(
+        const pic = this.base64Img.substring(23)
+        this.putPicCriminal(
           pic,
-          'D:\\img\\people',
+          'D:\\img\\criminal',
           `${this.name}` + '-' + `${this.cardno}` + '.png'
         )
-        this.putRegisterData(this.name, this.cardno, dir + fileName)
+        this.putCriminalData(this.name, this.cardno, dir + fileName)
         this.infoFlag = 2
-        console.log(this.screenshotCanvas)
-        this.screenshotCanvas.style.display = 'block'
         this.refash()
       }
     },
-    getRegister() {
+    getCriminal() {
       axios({
-        url: 'http://127.0.0.1:80/getregister',
+        url: 'http://127.0.0.1:80/getcriminal',
         method: 'get'
       }).then((res) => {
         this.tableData = res.data
       })
     },
-    putPicRegister(pic, dir, fileName) {
+    putPicCriminal(pic, dir, fileName) {
       axios({
-        url: 'http://127.0.0.1:80/register',
+        url: 'http://127.0.0.1:80/criminal',
         method: 'get',
         params: {
           pic,
@@ -146,9 +147,9 @@ export default {
         console.log(res)
       })
     },
-    putRegisterData(name, cardno, photo) {
+    putCriminalData(name, cardno, photo) {
       axios({
-        url: 'http://127.0.0.1:80/addregister',
+        url: 'http://127.0.0.1:80/addcriminal',
         method: 'post',
         data: {
           name,
@@ -158,13 +159,6 @@ export default {
       }).then((res) => {
         console.log(res)
       })
-    },
-
-    // 关闭摄像头
-    destroyed() {
-      if (!this.mediaStreamTrack) return
-      this.mediaStreamTrack.srcObject.getTracks()[0].stop()
-      this.trackerTask.stop()
     },
 
     //刷新当前页面
