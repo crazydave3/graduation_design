@@ -17,7 +17,7 @@ Vue.use(VueRouter)
 
 const routes = [{
         path: '/',
-        redirect: '/identify'
+        redirect: '/register'
     },
     {
         path: '/login',

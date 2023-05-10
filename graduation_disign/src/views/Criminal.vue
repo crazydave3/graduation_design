@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div style="height: 20px;"><router-link id="toAddPeople" to="register">←录入人脸</router-link><router-link id="toIdentify" to="identify">扫脸进闸→</router-link></div>
     <!-- 提示区域 start -->
     <div align="center" class="info">
       <p v-if="infoFlag === 1">请输入信息后点击录入</p>
@@ -104,7 +105,6 @@ export default {
       const dir = 'D:/img/criminal/'
       const fileName = `${this.name}-${this.cardno}` + '.png'
       const table = this.tableData.filter((t) => this.cardno === t.cardno)
-      console.log(table)
 
       if (table.length > 0 || this.cardno.length !== 18 || this.name === '') {
         if (this.name === '') {
@@ -115,7 +115,7 @@ export default {
           this.infoFlag = 5
         }
       } else {
-        const pic = this.base64Img.substring(23)
+        const pic = this.base64Img.substring(22)
         this.putPicCriminal(
           pic,
           'D:\\img\\criminal',
@@ -137,8 +137,8 @@ export default {
     putPicCriminal(pic, dir, fileName) {
       axios({
         url: 'http://127.0.0.1:80/criminal',
-        method: 'get',
-        params: {
+        method: 'post',
+        data: {
           pic,
           dir,
           fileName
@@ -211,6 +211,25 @@ export default {
   bottom: 5%;
   transform: translate(-50%, -5%);
   width: 600px;
+}
+#main {
+  height: auto;
+}
+#toAddPeople {
+  float: left;
+  text-decoration: none;
+  color: black;
+}
+#toAddPeople:hover {
+  color: gray;
+}
+#toIdentify {
+  float: right;
+  text-decoration: none;
+  color: black;
+}
+#toIdentify:hover {
+  color: gray;
 }
 </style>
   

@@ -1,10 +1,14 @@
 <template>
   <div>
+    <div style="height: 20px;"><router-link id="toAddCriminal" to="criminal">←录入罪犯人脸</router-link><router-link id="toMonitor" to="monitor">监控统计人数→</router-link></div>
     <!-- 提示区域 start -->
     <div align="center" class="info">
-      <p v-if="infoFlag === 1">请摘下眼镜和口罩正视摄像头</p>
+      <p v-if="infoFlag === 1">请摘下眼镜和口罩正视摄像头刷身份证进闸</p>
       <p v-else-if="infoFlag === 2">正在识别</p>
-      <p v-else>识别{{ flag }}</p>
+      <p v-else-if="infoFlag === 3">
+        识别成功,{{ this.filterData[0].name }}请过闸门
+      </p>
+      <p v-else-if="infoFlag === 4">识别失败，请重新识别</p>
     </div>
     <!-- 提示区域 end -->
 
@@ -14,6 +18,13 @@
       <canvas id="canvas"></canvas>
       <canvas id="screenshotCanvas"></canvas>
       <img src="../assets/defaultImg.png" alt="" />
+      <p>
+        输入身份证号<input type="text" v-model="cardno" /><button
+          @click="confirm()"
+        >
+          确定
+        </button>
+      </p>
     </div>
     <!-- 摄像区域 end -->
     <div class="alert">
@@ -28,36 +39,49 @@
 <script>
 import tracking from '@/assets/tracking/build/tracking-min.js'
 import '@/assets/tracking/build/data/face-min.js'
-import { IdentifyFace, FindCriminal } from '../api'
+import { CompareFace, IdentifyFace, FindCriminal } from '../api'
 import axios from 'axios'
 export default {
   name: 'Identify',
   data() {
     return {
+      paramsArr: [],
+      paramsArr1: [],
+
       // 人脸参数
       params: {
         image: '',
-        image_type: 'BASE64',
-        group_id_list: 'hjm',
-        match_threshold: 80
+        image_type: 'BASE64'
       },
       params1: {
         image: '',
         image_type: 'BASE64',
-        group_id_list: 'hjm',
-        max_face_num: 10,
-        match_threshold: 80
+        group_id_list: 'hjm'
       },
+      params2: {
+        image: '',
+        image_type: 'BASE64'
+      },
+      params3: {
+        image: '',
+        image_type: 'BASE64'
+      },
+      tableData: [],
+      tableData1: [],
+      filterData: [],
+      filterData1: [],
+
       // 提示
       infoFlag: 1,
       flag: '',
 
+      cardno: '',
       // 摄像
       trackerTask: null,
       mediaStreamTrack: null,
       video: null,
       screenshotCanvas: null,
-      uploadLock: true,
+      uploadLock: false,
 
       isShow: false,
 
@@ -66,6 +90,8 @@ export default {
     }
   },
   mounted() {
+    this.getRegister()
+    this.getCriminal()
     this.init()
   },
   beforeDestroy() {
@@ -93,17 +119,11 @@ export default {
       this.trackerTask = window.tracking.track('#video', tracker, {
         camera: true
       })
-
-      const _this = this
-      this.timer = setTimeout(() => {
-        _this.uploadLock && _this.screenshotAndUpload()
-      }, 3000)
     },
 
     // 上传图片
     async screenshotAndUpload() {
       // 上锁避免重复发送请求
-      this.uploadLock = false
       console.log('ing')
 
       // 绘制当前帧图片转换为base64格式
@@ -117,31 +137,37 @@ export default {
       const time = this.getTime()
 
       // 使用 base64Img 请求接口即可
-      this.params.image = pic
       this.params1.image = pic
+      this.params3.image = pic
+      this.paramsArr.push(this.params)
+      this.paramsArr.push(this.params1)
+      this.paramsArr1.push(this.params2)
+      this.paramsArr1.push(this.params3)
 
       this.infoFlag = 2
       // 请求接口成功以后打开锁
-      let result = await IdentifyFace(this.params)
-      let result1 = await FindCriminal(this.params1)
-      this.uploadLock = true
+      // let result = await IdentifyFace(this.params)
+      // let result1 = await FindCriminal(this.params1)
+      let result = await CompareFace(this.paramsArr)
+      let result1 = await CompareFace(this.paramsArr1)
 
-      if (result.error_code == 0) {
-        this.flag = '成功'
+      if (result.error_code === 0 && result.result.score > 80) {
+        this.infoFlag = 3
+
         const dir = 'D:/img/identify/'
-        const fileName =
-          `${time}` + `${result.result.user_list[0].user_id}` + '.png'
+        const fileName = `${time}` + `${this.filterData[0].name}` + '.png'
         console.log(result)
         //把图片存进本地
         this.putPicIdentify(pic.toString(), dir, fileName)
         //存数据进数据库
         this.putIdentifyData(
           dir + fileName,
-          `${result.result.user_list[0].user_id}`,
+          this.filterData[0].cardno,
+          `${this.filterData[0].name}`,
           `${time}`
         )
       } else {
-        this.flag = '失败,请摘下口罩和眼睛重新识别'
+        this.infoFlag = 4
         console.log(
           'error_code:',
           result.error_code,
@@ -150,26 +176,16 @@ export default {
           'result'
         )
       }
-      this.infoFlag = 3
-      if (result1.error_code == 0) {
+      if (result1.error_code == 0 && result1.result.score > 80) {
         const dir = 'D:/img/monitor/'
-        const fileName =
-          `${time}` +
-          `${result1.result.face_list[0].user_list[0].user_id}` +
-          '.png'
-        console.log(result1)
+        const fileName = `${time}` + `${this.filterData1[0].name}` + '.png'
         //把图片存进本地
-        this.putPicMonitor(
-          pic.toString(),
-          'D:\\img\\monitor',
-          `${time}` +
-            `${result1.result.face_list[0].user_list[0].user_id}` +
-            '.png'
-        )
+        this.putPicMonitor(pic.toString(), dir, fileName)
         //存数据进数据库
         this.putMonitorData(
           dir + fileName,
-          `${result1.result.face_list[0].user_list[0].user_id}`,
+          this.filterData1[0].cardno,
+          `${this.filterData1[0].name}`,
           `${time}`
         )
         this.haveCriminal()
@@ -236,8 +252,8 @@ export default {
     putPicIdentify(pic, dir, fileName) {
       axios({
         url: 'http://127.0.0.1:80/identify',
-        method: 'get',
-        params: {
+        method: 'post',
+        data: {
           pic,
           dir,
           fileName
@@ -249,8 +265,8 @@ export default {
     putPicMonitor(pic, dir, fileName) {
       axios({
         url: 'http://127.0.0.1:80/monitor',
-        method: 'get',
-        params: {
+        method: 'post',
+        data: {
           pic,
           dir,
           fileName
@@ -259,12 +275,13 @@ export default {
         console.log(res)
       })
     },
-    putIdentifyData(photo, name, time) {
+    putIdentifyData(photo, cardno, name, time) {
       axios({
         url: 'http://127.0.0.1:80/addidentify',
         method: 'post',
         data: {
           photo,
+          cardno,
           name,
           time
         }
@@ -272,12 +289,13 @@ export default {
         console.log(res)
       })
     },
-    putMonitorData(photo, name, time) {
+    putMonitorData(photo, cardno, name, time) {
       axios({
         url: 'http://127.0.0.1:80/addmonitor',
         method: 'post',
         data: {
           photo,
+          cardno,
           name,
           time
         }
@@ -294,7 +312,7 @@ export default {
 
     //刷新当前页面
     refash() {
-      this.countdown = 3
+      this.countdown = 5
       this.isShow = true
       this.timer = setInterval(() => {
         if (this.countdown !== 0) {
@@ -303,6 +321,38 @@ export default {
           this.$router.go(0)
         }
       }, 1000)
+    },
+
+    getRegister() {
+      axios({
+        url: 'http://127.0.0.1:80/getregister',
+        method: 'get'
+      }).then((res) => {
+        this.tableData = res.data
+      })
+    },
+
+    getCriminal() {
+      axios({
+        url: 'http://127.0.0.1:80/getcriminal',
+        method: 'get'
+      }).then((res) => {
+        this.tableData1 = res.data
+      })
+    },
+
+    confirm() {
+      this.filterData = this.tableData.filter((t) => this.cardno === t.cardno)
+      this.filterData1 = this.tableData1.filter((t) => this.cardno === t.cardno)
+
+      const base64Img = this.filterData[0].photo
+      if (this.filterData1.length > 0) {
+        const base64Img1 = this.filterData1[0].photo
+        this.params2.image = base64Img1
+      }
+
+      this.params.image = base64Img
+      this.screenshotAndUpload()
     }
   }
 }
@@ -384,6 +434,22 @@ export default {
   100% {
     opacity: 1;
   }
+}
+#toAddCriminal {
+  float: left;
+  text-decoration: none;
+  color: black;
+}
+#toAddCriminal:hover {
+  color: gray;
+}
+#toMonitor {
+  float: right;
+  text-decoration: none;
+  color: black;
+}
+#toMonitor:hover {
+  color: gray;
 }
 </style>
     

@@ -5,48 +5,46 @@ const db = require('./db');
 const fs = require('fs');
 const path = require('path');
 
-router.get('/identify', (req, res) => {
-    console.log(path.join(req.query.dir, req.query.fileName));
-    const dataBuffer = Buffer.from(req.query.pic, 'base64');
-    fs.writeFile(path.join(req.query.dir, req.query.fileName), dataBuffer, function(err) {
+router.post('/identify', (req, res) => {
+    console.log(path.join(req.body.dir, req.body.fileName));
+    const dataBuffer = Buffer.from(req.body.pic, 'base64');
+    fs.writeFile(path.join(req.body.dir, req.body.fileName), dataBuffer, function(err) {
         if (err) {
             console.log(err);
         } else {}
     })
 });
-router.get('/count', (req, res) => {
-    console.log(path.join(req.query.dir, req.query.fileName));
-    const dataBuffer = Buffer.from(req.query.pic, 'base64');
-    fs.writeFile(path.join(req.query.dir, req.query.fileName), dataBuffer, function(err) {
+router.post('/count', (req, res) => {
+    console.log(path.join(req.body.dir, req.body.fileName));
+    const dataBuffer = Buffer.from(req.body.pic, 'base64');
+    fs.writeFile(path.join(req.body.dir, req.body.fileName), dataBuffer, function(err) {
         if (err) {
             console.log(err);
         } else {}
     })
 });
-router.get('/monitor', (req, res) => {
-    console.log(path.join(req.query.dir, req.query.fileName));
-    const dataBuffer = Buffer.from(req.query.pic, 'base64');
-    fs.writeFile(path.join(req.query.dir, req.query.fileName), dataBuffer, function(err) {
+router.post('/monitor', (req, res) => {
+    console.log(path.join(req.body.dir, req.body.fileName));
+    const dataBuffer = Buffer.from(req.body.pic, 'base64');
+    fs.writeFile(path.join(req.body.dir, req.body.fileName), dataBuffer, function(err) {
         if (err) {
             console.log(err);
         } else {}
     })
 });
-router.get('/register', (req, res) => {
-    console.log(path.join(req.query.dir, req.query.fileName));
-    const dataBuffer = Buffer.from(req.query.pic, 'base64');
-    fs.writeFile(path.join(req.query.dir, req.query.fileName), dataBuffer, function(err) {
+router.post('/register', (req, res) => {
+    console.log(path.join(req.body.dir, req.body.fileName));
+    const dataBuffer = Buffer.from(req.body.pic, 'base64');
+    fs.writeFile(path.join(req.body.dir, req.body.fileName), dataBuffer, function(err) {
         if (err) {
             console.log(err);
         } else {}
     })
 });
-router.get('/criminal', (req, res) => {
-    console.log(req.query.pic);
-    console.log(path.join(req.query.dir, req.query.fileName));
-    const dataBuffer = Buffer.from(req.query.pic, 'base64');
-    console.log(dataBuffer);
-    fs.writeFile(path.join(req.query.dir, req.query.fileName), dataBuffer, function(err) {
+router.post('/criminal', (req, res) => {
+    console.log(path.join(req.body.dir, req.body.fileName));
+    const dataBuffer = Buffer.from(req.body.pic, 'base64');
+    fs.writeFile(path.join(req.body.dir, req.body.fileName), dataBuffer, function(err) {
         if (err) {
             console.log(err);
         } else {}
@@ -57,14 +55,16 @@ router.get('/getregister', (request, response) => {
     let sql = 'select * from people';
     db.query(sql, (error, result) => {
         if (error) return console.log(error.message);
+        for (let i = 0; i < result.length; i++) {
+            let data = fs.readFileSync(result[i].photo);
+            result[i].photo = Buffer.from(data).toString('base64');
+        }
         response.send(result);
     })
 });
 //注册添加进数据库
 router.post('/addregister', (request, response) => {
-    console.log(1);
     let sql = 'insert into people set ?'
-        // console.log(request.body)
     db.query(sql, request.body, (error, result) => {
         if (error) return console.log(error.message);
         if (result.affectedRows === 1) {
@@ -77,6 +77,10 @@ router.get('/getcriminal', (request, response) => {
     let sql = 'select * from criminal';
     db.query(sql, (error, result) => {
         if (error) return console.log(error.message);
+        for (let i = 0; i < result.length; i++) {
+            let data = fs.readFileSync(result[i].photo);
+            result[i].photo = Buffer.from(data).toString('base64');
+        }
         response.send(result);
     })
 });

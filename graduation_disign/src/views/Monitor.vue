@@ -1,10 +1,13 @@
 <template>
   <div>
+    <div style="height: 20px;"><router-link id="toIdentify" to="identify">←扫脸进闸</router-link><router-link id="toLogin" to="login">登录→</router-link></div>
     <!-- 提示区域 start -->
-    <div align="center" class="info">
+    <div align="center" class="info" style="margin: 10px auto;">
       <p v-if="infoFlag === 1">监视中,{{ time }}秒后拍照识别罪犯和统计人数</p>
       <p v-else-if="infoFlag === 2">正在识别罪犯和统计人流</p>
-      <p v-else>统计完毕:共有:{{ count }}人</p>
+      <p v-else-if="infoFlag === 3">统计完毕:共有:{{ count }}人</p>
+      <p v-else></p>
+
     </div>
     <!-- 提示区域 end -->
 
@@ -38,7 +41,7 @@
   
 <script>
 import '@/assets/tracking/build/data/face-min.js'
-import { FindCriminal, CountPerson } from '../api'
+import { CompareFace, FindCriminal, CountPerson } from '../api'
 import axios from 'axios'
 
 export default {
@@ -51,11 +54,14 @@ export default {
       },
       params1: {
         image: '',
-        image_type: 'BASE64',
-        group_id_list: 'hjm',
-        max_face_num: 10,
-        match_threshold: 80
+        image_type: 'BASE64'
       },
+      params2: {
+        image: '',
+        image_type: 'BASE64'
+      },
+      paramsArr:[],
+      tableData: [],
 
       //人数
       count: 0,
@@ -83,10 +89,22 @@ export default {
   },
   mounted() {
     this.init()
-    this.getmaxperson()
+    this.getCriminal()
+    this.getMaxPerson()
+  },
+  beforeDestroy() {
+    this.destroyed()
   },
   methods: {
-    getmaxperson() {
+    getCriminal() {
+      axios({
+        url: 'http://127.0.0.1:80/getcriminal',
+        method: 'get'
+      }).then((res) => {
+        this.tableData = res.data
+      })
+    },
+    getMaxPerson() {
       axios({
         url: 'http://127.0.0.1:80/getadmin',
         method: 'get'
@@ -128,7 +146,7 @@ export default {
     async screenshotAndUpload() {
       clearInterval(this.timer)
       clearInterval(this.timer1)
-      if (this.timer) clearTimeout(this.timer2)
+      clearTimeout(this.timer2)
 
       // 上锁避免重复发送请求
       this.uploadLock = false
@@ -147,15 +165,40 @@ export default {
       // 使用 base64Img 请求接口即可
       this.params.image = pic
       this.params1.image = pic
-
+      this.paramsArr[0] = this.params1
       // 请求接口成功以后打开锁
 
       let result = await CountPerson(this.params)
-      let result1 = await FindCriminal(this.params1)
+      for (let i = 0; i < this.tableData.length; i++) {
+        this.params2.image = this.tableData[i].photo
+        this.paramsArr[1] = this.params2
+        let result1 = await CompareFace(this.paramsArr)
+        console.log(result1);
+        //FindCriminal
+        if (result1.error_code === 0 && result1.result.score > 80) {
+          const dir = 'D:/img/monitor/'
+          const fileName =
+            `${time}` +
+            `${this.tableData[i].name}` +
+            '.png'
+          //把图片存进本地
+          this.putPicMonitor(pic.toString(), dir, fileName)
+          //存数据进数据库
+          this.putMonitorData(
+            dir + fileName,
+            this.tableData[i].cardno,
+            `${this.tableData[i].name}`,
+            `${time}`
+          )
+          this.haveCriminal()
+          break
+        } else {
+        }
+      }
       this.uploadLock = true
 
       //CountPerson
-      if (result.error_code == undefined) {
+      if (result.error_code === undefined) {
         const dir = 'D:/img/count/'
         const fileName = `${time}` + `${result.person_num}` + '人.png'
         // console.log(result)
@@ -185,40 +228,6 @@ export default {
           'error_msg:',
           result.error_msg,
           'result'
-        )
-        return Promise.reject(new Error('faile'))
-      }
-      //FindCriminal
-      if (result1.error_code == 0) {
-        const dir = 'D:/img/monitor/'
-        const fileName =
-          `${time}` +
-          `${result1.result.face_list[0].user_list[0].user_id}` +
-          '.png'
-        // console.log(result1)
-        //把图片存进本地
-        this.putPicMonitor(
-          pic.toString(),
-          'D:\\img\\monitor',
-          `${time}` +
-            `${result1.result.face_list[0].user_list[0].user_id}` +
-            '.png'
-        )
-        //存数据进数据库
-        this.putMonitorData(
-          dir + fileName,
-          `${result1.result.face_list[0].user_list[0].user_id}`,
-          `${time}`
-        )
-        this.haveCriminal()
-        this.infoFlag = 3
-      } else {
-        console.log(
-          'error_code:',
-          result.error_code,
-          'error_msg:',
-          result.error_msg,
-          'result1'
         )
         return Promise.reject(new Error('faile'))
       }
@@ -278,9 +287,12 @@ export default {
       haveCriminal[0].style.display = 'block'
       let haveCriminal1 = document.getElementsByClassName('haveCriminal1')
       haveCriminal1[0].classList.add('blink')
+      localStorage.setItem('haveCriminal1', 'true')
+
     },
     //隐藏节点
     close(event) {
+      localStorage.removeItem('haveCriminal1')
       event.currentTarget.parentElement.style.display = 'none'
     },
     //获取当前时间
@@ -315,8 +327,8 @@ export default {
     putPicCount(pic, dir, fileName) {
       axios({
         url: 'http://127.0.0.1:80/count',
-        method: 'get',
-        params: {
+        method: 'post',
+        data: {
           pic,
           dir,
           fileName
@@ -328,8 +340,8 @@ export default {
     putPicMonitor(pic, dir, fileName) {
       axios({
         url: 'http://127.0.0.1:80/monitor',
-        method: 'get',
-        params: {
+        method: 'post',
+        data: {
           pic,
           dir,
           fileName
@@ -351,12 +363,13 @@ export default {
         console.log(res)
       })
     },
-    putMonitorData(photo, name, time) {
+    putMonitorData(photo, cardno, name, time) {
       axios({
         url: 'http://127.0.0.1:80/addmonitor',
         method: 'post',
         data: {
           photo,
+          cardno,
           name,
           time
         }
@@ -366,30 +379,21 @@ export default {
     },
     // 关闭摄像头
     destroyed() {
+      this.infoFlag = 4
       clearTimeout(this.timer1)
       clearTimeout(this.timer2)
       if (!this.mediaStreamTrack) return
       this.mediaStreamTrack.srcObject.getTracks()[0].stop()
       this.trackerTask.stop(), clearTimeout(this.timer)
     }
-
-    //刷新当前页面
-    // refash() {
-    //   this.countdown = 3
-    //   this.isShow = true
-    //   this.timer = setInterval(() => {
-    //     if (this.countdown !== 0) {
-    //       this.countdown--
-    //     } else {
-    //       this.$router.go(0)
-    //     }
-    //   }, 1000)
-    // }
   }
 }
 </script>
   
 <style scoped>
+p {
+  margin:10px 0 10px 0 
+}
 /* 提示 */
 .info {
   font-size: 20px;
@@ -481,6 +485,22 @@ export default {
   100% {
     opacity: 1;
   }
+}
+#toIdentify {
+  float: left;
+  text-decoration: none;
+  color: black;
+}
+#toIdentify:hover {
+  color: gray;
+}
+#toLogin {
+  float: right;
+  text-decoration: none;
+  color: black;
+}
+#toLogin:hover {
+  color: gray;
 }
 </style>
   

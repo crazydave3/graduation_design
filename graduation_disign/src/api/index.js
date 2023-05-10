@@ -7,6 +7,13 @@ export const IdentifyFace = (params) => requests({
     data: params
 })
 
+//人脸对比
+export const CompareFace = (params) => requests({
+    url: `/face/v3/match?access_token=24.680299cd20ecc0f8ba70ce53929c5070.2592000.1685803531.282335-31686314`,
+    method: "post",
+    data: params
+})
+
 //查找罪犯
 export const FindCriminal = (params) => requests({
     url: `/face/v3/multi-search?access_token=24.680299cd20ecc0f8ba70ce53929c5070.2592000.1685803531.282335-31686314`,

@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- 提示区域 start -->
+    <div style="height: 20px;"><router-link id="toAddCriminal" to="criminal">录入罪犯人脸→</router-link></div>
     <div align="center" class="info">
       <p v-if="infoFlag === 1">输入姓名和身份证号后请正视摄像头点击录入</p>
       <p v-else-if="infoFlag === 2">录入成功</p>
@@ -136,8 +137,8 @@ export default {
     putPicRegister(pic, dir, fileName) {
       axios({
         url: 'http://127.0.0.1:80/register',
-        method: 'get',
-        params: {
+        method: 'post',
+        data: {
           pic,
           dir,
           fileName
@@ -173,6 +174,9 @@ export default {
       this.timer = setInterval(() => {
         this.$router.go(0)
       }, 3000)
+    },
+    toAddCriminal(){
+      this.$route.go('/criminal')
     }
   }
 }
@@ -217,6 +221,14 @@ export default {
   bottom: 5%;
   transform: translate(-50%, -5%);
   width: 600px;
+}
+#toAddCriminal {
+  float: right;
+  text-decoration: none;
+  color: black;
+}
+#toAddCriminal:hover {
+  color: gray;
 }
 </style>
   

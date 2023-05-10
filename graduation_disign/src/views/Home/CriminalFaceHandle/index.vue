@@ -66,6 +66,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="name" label="姓名"> </el-table-column>
+      <el-table-column prop="cardno" label="身份证号码"> </el-table-column>
       <el-table-column prop="time" label="时间"> </el-table-column>
       <el-table-column align="right">
         <template slot-scope="scope">
@@ -120,22 +121,6 @@ export default {
         account: '',
         password: ''
       },
-      rules: {
-        type: [
-          { required: true, message: 'type is required', trigger: 'change' }
-        ],
-        timestamp: [
-          {
-            type: 'date',
-            required: true,
-            message: 'timestamp is required',
-            trigger: 'change'
-          }
-        ],
-        title: [
-          { required: true, message: 'title is required', trigger: 'blur' }
-        ]
-      }
     }
   },
   mounted() {
@@ -193,18 +178,17 @@ export default {
       this.setPaginations()
     },
     find() {
-      console.log(this.search)
       const search = this.search
       if (search) {
         this.tableData = this.filterTableData.filter((data) =>
           data.name.toLowerCase().includes(search.toLowerCase())
         )
       }
+      else this.tableData = this.filterTableData
       this.setPaginations()
     },
     handleSelectionChange(val) {
       this.batchDeleteArr = val
-      console.log(val)
     },
     // 批量删除
     batchDelete() {

@@ -1,30 +1,36 @@
 <template>
-  <div class="login-wrap">
-    <el-form class="login-container">
-      <h1 class="title">管理员登录</h1>
-      <el-form-item label="账号">
-        <el-input
-          type="text"
-          v-model="admin1.account"
-          placeholder="登录账号"
-          autocomplete="off"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="登录密码">
-        <el-input
-          type="password"
-          v-model="admin1.password"
-          placeholder="登录密码"
-          autocomplete="off"
-        ></el-input>
-      </el-form-item>
+  <div>
+    <div style="height: 20px">
+      <router-link id="toMonitor" to="monitor">←监控统计人数</router-link>
+    </div>
 
-      <el-form-item>
-        <el-button type="primary" style="width: 100%" @click="login()"
-          >登录</el-button
-        >
-      </el-form-item>
-    </el-form>
+    <div class="login-wrap">
+      <el-form class="login-container">
+        <h1 class="title">管理员登录</h1>
+        <el-form-item label="账号">
+          <el-input
+            type="text"
+            v-model="admin1.account"
+            placeholder="登录账号"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="登录密码">
+          <el-input
+            type="password"
+            v-model="admin1.password"
+            placeholder="登录密码"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" style="width: 100%" @click="login()"
+            >登录</el-button
+          >
+        </el-form-item>
+      </el-form>
+    </div>
   </div>
 </template>
  
@@ -42,17 +48,20 @@ export default {
       admin1: {
         account: '',
         password: ''
-      },
+      }
     }
   },
   mounted() {
     this.getadmin()
   },
   methods: {
-    login(){
-        if(this.admin.account === this.admin1.account && this.admin.password === this.admin1.password){
-            this.$router.push({ path: '/home' })
-        }
+    login() {
+      if (
+        this.admin.account === this.admin1.account &&
+        this.admin.password === this.admin1.password
+      ) {
+        this.$router.push({ path: '/home' })
+      }
     },
     getadmin() {
       axios({
@@ -95,5 +104,13 @@ export default {
   margin: 0px auto 40px auto;
   text-align: center;
   color: #505458;
+}
+#toMonitor {
+  float: left;
+  text-decoration: none;
+  color: black;
+}
+#toMonitor:hover {
+  color: gray;
 }
 </style>

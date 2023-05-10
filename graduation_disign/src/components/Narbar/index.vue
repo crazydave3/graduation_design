@@ -1,5 +1,6 @@
 <template>
   <nav>
+    <router-link id="toLogin" :to="{path:'/login'}">←退出登录</router-link>
     <label class="logo">铁路安防系统</label>
     <ul>
       <li><router-link class="a" to="admin">账号管理</router-link></li>
@@ -73,5 +74,13 @@ nav ul li .a {
 .a:hover {
   background: #1b9bff;
   transition: 0.5s;
+}
+#toLogin {
+  float: left;
+  text-decoration: none;
+  color: white;
+}
+#toLogin:hover {
+  color: skyblue;
 }
 </style>
