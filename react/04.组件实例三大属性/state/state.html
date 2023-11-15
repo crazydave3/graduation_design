@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      .title{
+        background-color: skyblue;
+      }
+    </style>
+</head>
+<body>
+    <div id="test"></div>
+    <!-- 引入react核心库 -->
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <!-- 引入react-dom,用于支持react操作DOM -->
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <!-- 引入babel,用于将jsx转为js -->
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+  <!-- 加载我们的 React 组件。-->
+  <!-- <script src="like_button.js"></script> -->
+  <script type="text/babel">
+    class Weather extends React.Component{
+        constructor(props){
+            super(props)
+            this.state = {isHot:false}
+            this.demo = this.changeWeather.bind(this)
+        }
+        render(){
+            // console.log(this);
+            const {isHot} = this.state
+            return (
+                <h1 onClick= {this.demo}>今天天气很{isHot ? '炎热':'凉爽'}</h1>
+            )
+        }
+        changeWeather() {
+          console.log(this);
+            const isHot = this.state.isHot
+            this.setState({isHot:!isHot})
+        }  
+    }
+ ReactDOM.render(<Weather/>,document.querySelector("#test"))
+
+
+  </script>
+</body>
+</html>

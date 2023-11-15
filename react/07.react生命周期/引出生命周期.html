@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      .title{
+        background-color: skyblue;
+      }
+    </style>
+</head>
+<body>
+  <div id="test"></div>
+  <!-- 引入react核心库 -->
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <!-- 引入react-dom,用于支持react操作DOM -->
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <!-- 引入babel,用于将jsx转为js -->
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+  <!-- 加载我们的 React 组件。-->
+  <!-- <script src="like_button.js"></script> -->
+  <script type="text/babel">
+
+    class Life extends React.Component{
+        state = {opacity:1}
+
+        death = ()=>{
+            // clearInterval(this.timer)
+            ReactDOM.unmountComponentAtNode(document.getElementById("test"))
+        }
+
+        //componentDidMount调用:组件挂载完毕
+        componentDidMount(){
+            let {opacity} = this.state
+            this.timer = setInterval(()=>{
+                opacity -= 0.1
+            if(opacity <= 0) opacity = 1
+                this.setState({opacity})
+            },200)
+        }
+
+        //componentWillUnmount调用:组件将要卸载
+        componentWillUnmount(){
+            clearInterval(this.timer)
+        }
+        //render调用：初始化渲染,状态更新后
+        render(){
+            return(
+                <div>
+                    <h1 style={{opacity:this.state.opacity}}>study study study</h1>
+                    <button onClick={this.death}>restart</button>
+                </div>
+                
+            )
+        }
+    }
+
+    ReactDOM.render(<Life/>,document.getElementById("test"))
+
+
+  </script>
+</body>
+</html>

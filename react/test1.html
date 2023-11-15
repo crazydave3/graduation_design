@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .btn {
+            height: 1000px;
+            background-color: skyblue;
+        }
+    </style>
+</head>
+
+<body>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NWDRRQP" height="0" width="0" style=" display: 'none'; visibility: 'hidden'"></iframe>
+</body>
+
+<script>
+
+    const num1 = [[1]];
+    const num2 = [2, [3]];
+
+    const numbers = num1.concat(num2);
+
+    console.log(numbers);
+    // results in [[1], 2, [3]]
+
+    // modify the first element of num1
+    num1[0].push(4);
+
+    console.log(numbers);
+    // results in [[1, 4], 2, [3]]
+</script>
+
+</html>

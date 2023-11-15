@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+</body>
+<script>
+    const printNumbers = (from, to) => {
+        const inter = setInterval(() => {
+            console.log(from);
+            if (from++ === to) {
+                clearInterval(inter)
+            }
+        }, 1000)
+
+    }
+    const printNumbers1 = (from, to) => {
+        setTimeout(function a() {
+            console.log(from);
+            if (from++ !== to) {
+                setTimeout(a, 1000)
+            }
+        }, 1000);
+
+    }
+    printNumbers(3, 9)
+    printNumbers1(3, 9)
+</script>
+
+</html>

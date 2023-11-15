@@ -1,0 +1,33 @@
+	admin.POST("/:orderID/reinstate", func(c echo.Context) error {
+		user := c.Get("user").(*jwt.Token)
+		claims := user.Claims.(*jwtCustomClaims)
+		isAdmin := false
+		for _, role := range claims.Roles {
+			if role == "managerOrders" || role == "superadmin" || role == "updateOrderStatus" {
+				isAdmin = true
+			}
+		}
+		if !isAdmin {
+			return echo.NewHTTPError(http.StatusUnauthorized)
+		}
+		orderID, err := parser.UUIDFromParam(c, "orderID")
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+		return svc(c.Request().Context(), func(ctx context.Context, service service.OrdersService) error {
+			originalOrder, err := service.GetOrderByID(ctx, orderID)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			}
+			order, err := service.ReinstateOrder(ctx, orderID)
+			if err != nil {
+				fmt.Println(err)
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			}
+			err = service.AdminOperationOrderLog(ctx, order.ID, "reinstate order", claims.FirstName, claims.LastName, claims.ID, nil, originalOrder, order)
+			if err != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			}
+			return c.JSON(http.StatusOK, order)
+		})
+	})

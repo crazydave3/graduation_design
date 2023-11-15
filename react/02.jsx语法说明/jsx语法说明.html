@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      .title{
+        background-color: skyblue;
+      }
+    </style>
+</head>
+<body>
+    <div id="test"></div>
+    <!-- 引入react核心库 -->
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <!-- 引入react-dom,用于支持react操作DOM -->
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <!-- 引入babel,用于将jsx转为js -->
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+  <!-- 加载我们的 React 组件。-->
+  <!-- <script src="like_button.js"></script> -->
+  <script type="text/babel">
+    const myId = 'aBCd'
+    const myData = 'helLO,reAct'
+    const VDOM = (
+      <h1 className="title" id={myId.toLocaleLowerCase()}>
+        <span style={{color:'pink'}}>{myData.toLocaleLowerCase()}</span>
+        </h1>
+        )
+    const TDOM = document.querySelector("#test")
+    ReactDOM.render(VDOM,document.querySelector("#test"))
+/*
+        jsx语法规则:
+        1.定义虚拟DOM时,不要写引号,
+        2.标签中混入JS表达式要用{},
+        3.样式的类名指定不要用class,要用className,
+        4.内联样式要用styke={key:value}的形式去写,
+        5.只有一个根标签
+        6.标签必须闭合
+        7.标签首字母
+            (1)若小写字母开头，则将改标签转为html同名元素，若html中无该标签对应的同名元素则报错
+            (2)若大写字母开头，react就去渲染对应的组件，若组件没有定义则报错
+*/
+  </script>
+</body>
+</html>

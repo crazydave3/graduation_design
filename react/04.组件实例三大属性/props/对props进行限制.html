@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      .title{
+        background-color: skyblue;
+      }
+    </style>
+</head>
+<body>
+    <div id="test"></div>
+    <div id="test1"></div>
+
+  <!-- 引入react核心库 -->
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <!-- 引入react-dom,用于支持react操作DOM -->
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <!-- 引入babel,用于将jsx转为js -->
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.6.0/prop-types.js"></script>
+  <script type="text/babel">
+    // var PropTypes = require('prop-types');
+    class Person extends React.Component{
+        render(){
+        const {name,age,sex} = this.props
+            return (
+            <ul>
+                <li>{name}</li>
+                <li>{age+1}</li>
+                <li>{sex}</li>
+            </ul>
+            )
+            
+        }
+    }
+    // 对标签属性进行类型，必要性的限制
+    Person.propTypes = {
+        name:PropTypes.string.isRequired, //限制name必传且为字符串
+        sex:PropTypes.string,
+        age:PropTypes.number,
+        speak:PropTypes.func
+    }
+    //指定默认标签属性值
+    Person.defaultProps = {
+          sex:'女'
+    }
+    ReactDOM.render(<Person name="tom" age={19} speak={speak}/>,document.getElementById("test"))
+    const p = {name:"you" ,age:12,sex:"男"}
+    ReactDOM.render(<Person {...p}/>,document.getElementById("test1"))
+    function speak(){
+          console.log('hahahha');
+        }
+  </script>
+</body>
+</html>

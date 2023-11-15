@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+      .title{
+        background-color: skyblue;
+      }
+    </style>
+</head>
+<body>
+  <div id="test"></div>
+  <!-- 引入react核心库 -->
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <!-- 引入react-dom,用于支持react操作DOM -->
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <!-- 引入babel,用于将jsx转为js -->
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+  <!-- 加载我们的 React 组件。-->
+  <!-- <script src="like_button.js"></script> -->
+  <script type="text/babel">
+
+    class Login extends React.Component {
+
+        state = {
+          username:'',
+          password:''
+        }
+
+        setFormData= (dataType)=>{
+            return(event)=>{
+                this.setState({[dataType]:event.target.value})
+            }
+                
+        }
+
+        showData = (event)=>{
+            event.preventDefault() //阻止表单提交
+            const {username,password} = this.state
+                alert(`用户名:${username},密码:${password}`)
+            }
+        render(){
+            return (
+                <form action="https://www.baidu.com" onSubmit={this.showData}>
+                用户名:<input onChange={this.setFormData('username')} type="text" name="username"/>
+                密码:<input onChange={this.setFormData('password')} type="password" name="password"/>
+                <button>登录</button>
+                </form>
+            )
+        }
+    }
+
+    ReactDOM.render(<Login/>,document.getElementById("test"))
+
+
+  </script>
+</body>
+</html>

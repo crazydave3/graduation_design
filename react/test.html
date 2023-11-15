@@ -1,0 +1,84 @@
+<html>
+
+<body>
+  <!-- <button onclick="a()">a</button> -->
+  <img id="img1">
+</body>
+
+<script>
+  //插入排序:
+  // const arr = [7, 6, 9, 3, 1, 5, 2, 4]
+  // const swap = (a,b) => {
+  //   const swap = arr[a]
+  //   arr[a] = arr[b]
+  //   arr[b] = swap
+  // }
+  // let num = 0
+  // for (i = 1; i < arr.length; i++) {
+  //   for (j = i - 1; j >= 0; j--) {
+  //     num++
+  //     if (arr[j+1] < arr[j]) {
+  //       swap(j+1, j)
+  //     } else break
+  //   }
+  // }
+  // console.log(num);
+  // console.log(arr);
+
+  //希尔排序
+  // const arr1 = [7, 6, 9, 3, 1, 5, 2, 4]
+  // let num = 0
+  // min = parseInt(arr1.length / 2)
+  // for (i = min; i > 0; i = parseInt(i / 2)) {
+  //   for (j = i; j < arr1.length; j++) {
+  //     const swap = arr1[j]
+  //     for (k = j; k >= i && swap < arr1[k - i]; k -= i) {
+  //       num++
+  //       arr1[k] = arr1[k - i]
+  //     }
+  //     arr1[k] = swap
+  //   }
+  // }
+  // console.log(num);
+  // console.log(arr1);
+  // let img = []
+  // const Img = document.getElementById("img1")
+  // setPic = async () => {
+  //   await fetch('http://shibe.online/api/shibes').then(res => {
+  //     return res.json().then(jsondata => {
+  //       if (res.ok) {
+  //         img = jsondata
+  //         return jsondata
+  //       }
+  //     })
+  //   })
+  //   Img.src = img[0]
+  // }
+  // setPic()
+  // var twoSum = function (nums, target) {
+  //   const newnums = {}
+  //   for (i = 0; i < nums.length; i++) {
+  //     const curnum = nums[i]
+  //     const need = target - curnum
+  //     if (newnums[curnum] !== undefined) {
+  //       return [ newnums[curnum], i]
+  //     } else {
+  //       newnums[need] = i
+  //     }
+  //   }
+  // };
+  var twoSum = function (nums, target) {
+    const newnums = new Map()
+    for (i = 0; i < nums.length; i++) {
+      const need = target - nums[i]
+      if (newnums.has(need)) {
+        return [newnums.get(need), i]
+      }
+      else (newnums.set(nums[i], i))
+    }
+  };
+  console.log(twoSum([2, 7, 11, 15], 9));
+  console.log(!'');
+</script>
+
+</html>
