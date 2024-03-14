@@ -33,6 +33,10 @@
     }
     printNumbers(3, 9)
     printNumbers1(3, 9)
+    const a = '/checkout/preview'
+    const b = '/orders/[orderID]/checkout/submit'
+    console.log(/\/checkout\/(preview|submit)/.test(a));
+    console.log(/\/checkout\/(preview|submit)/.test(b));
 </script>
 
 </html>

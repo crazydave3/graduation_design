@@ -1,36 +1,27 @@
-const getRoomItemsPricing = (rooms: Record<string, number>) => {
-        const clearRooms: Record<string, number> = {}
-        for (let k in rooms) {
-            const qty = rooms[k]
-            if (qty > 0) {
-                clearRooms[k] = qty
-            }
-        }
-        const roomItemsPrice: AddToCartItem[] = []
-        Object.entries(clearRooms).map(([id, quantity]) => {
-            let tiersPricingId = ''
-            for (let i = 0; i < Object.entries(selectedRoomsPricing).length; i++) {
-                tiersPricingId = Object.entries(selectedRoomsPricing)[i][0]
-                let roomPricing: HotelRoomTierPriceJSON | undefined
-                hotel.rooms
-                    .find((room) => room.id === id)
-                    ?.tiers.map((tier) => {
-                        tier.prices.map((price) => {
-                            if (price.id === tiersPricingId) {
-                                roomPricing = price
-                                return
-                            }
-                        })
-                    })
-                if (!roomPricing) continue
-                roomItemsPrice.push({
-                    itemID: roomPricing.id,
-                    price: roomPricing.price,
-                    quantity: Object.entries(selectedRoomsPricing)[i][1],
-                    type: 'room.tier.price'
-                } as AddToCartItem)
-            }
-        })
-        if (!roomItemsPrice || roomItemsPrice.length === 0) return []
-        return roomItemsPrice as AddToCartItem[]
-    }
+<Accordion>
+                                {event.faqs.map(
+                                    (faq: { question: string; answer: string }, index: number) => {
+                                        return (
+                                            <Accordion.Item
+                                                onClick={(_) => {
+                                                    sendMultiStateCustomEventToMparticle(
+                                                        {
+                                                            faq_question: faq.question,
+                                                            faq_answer: faq.answer,
+                                                            page: window.location.href.split('?')[0]
+                                                        },
+                                                        'Toggled an FAQ on Event page'
+                                                    )
+                                                }}
+                                                key={'faq-' + index.toString()}
+                                                eventKey={'faq-' + index.toString()}
+                                            >
+                                                <Accordion.Header>{faq.question}</Accordion.Header>
+                                                <Accordion.Body
+                                                    dangerouslySetInnerHTML={{ __html: faq.answer }}
+                                                ></Accordion.Body>
+                                            </Accordion.Item>
+                                        )
+                                    }
+                                )}
+                            </Accordion>

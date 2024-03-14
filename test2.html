@@ -4,43 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="viewport" content="initial-scale=1, width=device-width" />
     <title>Document</title>
+    <style>
+        #canvas {
+            border: 1px solid black;
+        }
+    </style>
 </head>
 
 <body>
-    <button id="ot-sdk-btn" class="ot-sdk-show-settings">Cookie Settings</button>
-    
+
+    <canvas id="canvas" width="1500" height="1500"></canvas>
 </body>
 <script>
-    const a = ['total',
-    'layaway',
-    'event',
-    'authState',
-    'groupSize',
-    'setMemberState',
-    'members',
-    'setMembers',
-    'memberToCopy',
-    'setMemberToCopy',
-    'showEditFriend',
-    'setShowEditFriend',
-    'showSpiltTip',
-    'setShowSpiltTip',
-    'setSelectedPayWay',
-    'splitIsInstallments',
-    'setSplitIsInstallments',
-    'spiltLayawayPlan',
-    'setSpiltLayawayPlan',
-    'formatMoney',
-    'setShowSplitPayDetail',
-    'splitDeposit',
-    'setSplitDeposit',
-    'splitPayDeposit',
-    'setSplitPayDeposit',
-    'depositIsOnlyPerPerson']
-    console.log(a.sort((a, b) => a.localeCompare(b)));
-    console.log(a);
+    const canvas = document.getElementById('canvas')
+    const ctx = canvas.getContext('2d')
+    ctx.fillStyle = "rgb(200, 0, 0)"
+    ctx.strokeStyle = "rgb(200, 0, 0)"
+    // ctx.fillRect(25, 25, 100, 100)
+    // ctx.clearRect(45, 45, 60, 60);
+    // ctx.strokeRect(50, 50, 50, 50);
+    for (i = 0; i <= 1500 && 1500 - i * 2 >= 0; i = i + 1) {
+        const random1 = Math.random() * 255
+        const random2 = Math.random() * 255
+        const random3 = Math.random() * 255
+        ctx.strokeStyle = `rgb(${random1}, ${random2}, ${random3})`
+
+        ctx.strokeRect(i, i, 1500 - i * 2, 1500 - i * 2)
+    }
+
 </script>
 
 </html>
