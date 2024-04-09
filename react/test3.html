@@ -13,30 +13,33 @@
 <body>
 </body>
 <script>
-    const printNumbers = (from, to) => {
-        const inter = setInterval(() => {
-            console.log(from);
-            if (from++ === to) {
-                clearInterval(inter)
-            }
-        }, 1000)
+    const c = '1' || ''
+    if (false) console.log(111);
+    console.log(''?.isadd);
+    // const printNumbers = (from, to) => {
+    //     const inter = setInterval(() => {
+    //         console.log(from);
+    //         if (from++ === to) {
+    //             clearInterval(inter)
+    //         }
+    //     }, 1000)
 
-    }
-    const printNumbers1 = (from, to) => {
-        setTimeout(function a() {
-            console.log(from);
-            if (from++ !== to) {
-                setTimeout(a, 1000)
-            }
-        }, 1000);
+    // }
+    // const printNumbers1 = (from, to) => {
+    //     setTimeout(function a() {
+    //         console.log(from);
+    //         if (from++ !== to) {
+    //             setTimeout(a, 1000)
+    //         }
+    //     }, 1000);
 
-    }
-    printNumbers(3, 9)
-    printNumbers1(3, 9)
-    const a = '/checkout/preview'
-    const b = '/orders/[orderID]/checkout/submit'
-    console.log(/\/checkout\/(preview|submit)/.test(a));
-    console.log(/\/checkout\/(preview|submit)/.test(b));
+    // }
+    // printNumbers(3, 9)
+    // printNumbers1(3, 9)
+    // const a = '/checkout/preview'
+    // const b = '/orders/[orderID]/checkout/submit'
+    // console.log(/\/checkout\/(preview|submit)/.test(a));
+    // console.log(/\/checkout\/(preview|submit)/.test(b));
 </script>
 
 </html>
