@@ -3,15 +3,63 @@
 <body>
     <!-- <button onclick="a()">a</button> -->
     <img id="img1">
-    <div style="background-color: rgba(16, 24, 40, 0.05)">#F4EBFF</div>
 
-    <div style="background-color: #ced4da"> #E9D7FE</div>
+    <div style="background-color: #ECFDF3">COLOR_ALABASTER</div>
+    <div style="background-color: #175CD3">COLOR_BLUE_500</div>
+    <div style="background-color: #F8F9FC">COLOR_BLUE_GRAY_50</div>
+    <div style="background-color: #363F72">COLOR_BLUE_GRAY_700</div>
+    <div style="background-color: #FFFAEB">COLOR_CREAM</div>
+    <div style="background-color: #B42318">COLOR_DEEP_RED</div>
+    <div style="background-color: #D92D20">COLOR_ERROR</div>
+    <div style="background-color: #DC3545">COLOR_ERROR_50</div>
+    <div style="background-color: #F04438">COLOR_ERROR_500</div>
+    <div style="background-color: #B42318">COLOR_ERROR_600</div>
+    <div style="background-color: #DC3545">COLOR_ERROR_610</div>
+    <div style="background-color: #D0D5DD">COLOR_GRAY</div>
+
+    <div style="background-color: #FCFCFD"> COLOR_GRAY_40</div>
+    <div style="background-color: #F9FAFB"> COLOR_GRAY_50</div>
+    <div style="background-color: #F2F4F7"> COLOR_GRAY_100</div>
+    <div style="background-color: #F9FAFB"> COLOR_GRAY_200</div>
+    <div style="background-color: #E4E7EC"> COLOR_GRAY_300</div>
+    <div style="background-color: #D0D5DD"> COLOR_GRAY_300D0D5DD</div>
+    <div style="background-color: #C6C6C6"> COLOR_GRAY_350</div>
+    <div style="background-color: #A6A6A6"> COLOR_GRAY_380</div>
+    <div style="background-color: #98A2B3"> COLOR_GRAY_400</div>
+    <div style="background-color: #6C757D"> COLOR_GRAY_450</div>
+    <div style="background-color: #667085"> COLOR_GRAY_500</div>
+    <div style="background-color: #475467"> COLOR_GRAY_600</div>
+    <div style="background-color: #344054"> COLOR_GRAY_700</div>
+    <div style="background-color: #1D2939"> COLOR_GRAY_800</div>
+    <div style="background-color: #212529"> COLOR_GRAY_820</div>
+    <div style="background-color: #101828"> COLOR_GRAY_900</div>
+    <div style="background-color: #027A48"> COLOR_GREEN</div>
+    <div style="background-color: #ECFDF3"> COLOR_GREEN_100</div>
+    <div style="background-color: #027A48"> COLOR_GREEN_300</div>
+    <div style="background-color: #F9F5FF"> COLOR_LIGHT_GRAY</div>
+    <div style="background-color: #FCFAFF"> COLOR_PRIMARY_25</div>
+    <div style="background-color: #F4EBFF"> COLOR_PRIMARY_50</div>
+    <div style="background-color: #E9D7FE"> COLOR_PRIMARY_100</div>
+    <div style="background-color: #D6BBFB"> COLOR_PRIMARY_300</div>
+    <div style="background-color: #9e77ed">BUTTON_HOVER_COLOR</div>
+    <div style="background-color: #7F56D9"> COLOR_PRIMARY_600</div>
+    <div style="background-color: #6941C6"> COLOR_PRIMARY_700</div>
+    <div style="background-color: #53389E"> COLOR_PRIMARY_800</div>
+    <div style="background-color: #FEF3F2"> COLOR_PEACH</div>
+    <div style="background-color: #FFFAEB"> COLOR_WARNING_50</div>
+    <div style="background-color: #F8D7DA"> COLOR_WARNING_300</div>
+    <div style="background-color: #F5C2C7"> COLOR_WARNING_350</div>
+    <div style="background-color: #B54708"> COLOR_WARNING_700</div>
+    <div style="background-color: #842029"> COLOR_WARNING_900</div>
+    <input id='input1' type="text">
 </body>
 
 <script>
-    const c = []
-    
-    console.log(c.some((tier) => tier.onSale),'111');
+    const c = [{ name: '111' }, { name: '222' }]
+    c.map((a) => {
+        a.name = '444'
+    })
+    console.log(c);
     // console.log(typeof (false));
     // console.log({});
     // window.localStorage.setItem(

@@ -1,0 +1,28 @@
+const subscribeNewsAndOffers = (email: string) => {
+    HIVE_SDK(
+        'emailSignup',
+        {
+            email: email
+        },
+        function (data: any) {
+            HIVE_SDK(
+                'addToSegment',
+                'Keep me up to date on news and offers',
+                function () {
+                    console.log('Success: Added to segment')
+                },
+                function (data: any) {
+                    console.log(
+                        'Error: Add to segment Keep me up to date on news and offers failed:',
+                        data
+                    )
+                }
+            )
+        },
+        function (data: any) {
+            toaster.warning('Please enter a valid email address.')
+            console.log('Subscription failed')
+            return
+        }
+    )
+}
